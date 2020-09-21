@@ -16,7 +16,6 @@ exports.create_department = async (req, res, next) => {
     const description = req.body.description;
     const doc = await departments.schema.path("name").options.enum;
     // TODO check for an exiting doc name with correspond to the new name
-    console.log(doc);
     if (doc.includes(docName)) {
       const newDepartment = new departments({
         name: docName,
