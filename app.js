@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(USER_ROUTE);
+// app.use(USER_ROUTE);
 app.use(DEPARTMENT_ROUTE);
 
 app.use((error, req, res, next) => {

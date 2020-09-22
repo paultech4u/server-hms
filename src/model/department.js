@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 const { DEPARTMENT_TYPE } = require("../constants");
-const { CARDIOLOGIST, SURGEON, DERMATOLOGIST, RADIOLOGIST } = DEPARTMENT_TYPE;
+// const { CARDIOLOGIST, SURGEON, DERMATOLOGIST, RADIOLOGIST } = DEPARTMENT_TYPE;
 const { Schema } = mongoose;
 
 const DEPARTMENT_SCHEMA = new Schema(
   {
     name: {
       type: String,
-      enum: [CARDIOLOGIST, SURGEON, DERMATOLOGIST, RADIOLOGIST],
+      // enum: [CARDIOLOGIST, SURGEON, DERMATOLOGIST, RADIOLOGIST],
       required: true,
     },
     description: {
