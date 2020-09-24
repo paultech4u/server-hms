@@ -1,18 +1,44 @@
-const express = require("express");
-const { body } = require("express-validator");
-const users = require("../controller/users/user");
-
+import express from "express";
+import { body, check } from "express-validator";
+import { signUp, verifyAccount } from "../controller/users/user";
+import User from "../model/user";
+import { error } from "../util/error";
 const router = express.Router();
 
-router.get("/users", users.getUser);
-
-router.post(
-  "/postuser",
+router.put(
+  "/user/signup",
   [
-    body("email").isEmail().normalizeEmail({ all_lowercase: false }),
-    body("name").not().isEmpty().trim(),
+    check("email")
+      .custom(async (value, { req }) => {
+        const user = await User.findOne({ email: value });
+        if (user.email === req.body.email) {
+          error(406, "email exists");
+        }
+      })
+      .not()
+      .isEmpty()
+      .normalizeEmail({ all_lowercase: true })
+      .trim(),
+    check("phoneNumber").custom(async (value) => {
+      const phone = await User.findOne({ phoneNumber: value });
+      if (phone) {
+        error(406, "email exists");
+      }
+    }),
+    check("password")
+      .isLength({ min: 8 })
+      .matches("/d/")
+      .withMessage("must contain a number")
+      .not()
+      .isEmpty()
+      .trim(),
+    body("role").not().isEmpty().trim(),
+    body("fullname").not().isEmpty().trim(),
+    body("department").not().isEmpty().trim(),
   ],
-  users.postUser
+  signUp
 );
 
-module.exports = router;
+router.get("/user/verify-email", verifyAccount);
+
+export default router;

@@ -2,21 +2,31 @@
   "name": "node-restapi",
   "version": "1.0.0",
   "description": "Creating a Restful API",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "nodemon --exec babel-node index.js"
   },
   "author": "Paulsimon Edache",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^7.2.6",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.6.1",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.5"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "eslint": "^7.9.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-import": "^0.13.0",
+    "loadash": "^1.0.0",
     "nodemon": "^2.0.4"
   }
 }

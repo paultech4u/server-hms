@@ -1,6 +1,7 @@
-exports.DEPARTMENT_TYPE = {
-  CARDIOLOGIST: "cardiologist",
-  SURGEON: "surgeon",
-  DERMATOLOGIST: "dermatologist",
-  RADIOLOGIST: "radiologist",
+exports.USER_ROLE = {
+  DOCTOR: "DOCTOR",
+  NURSE: "NURSE",
+  PHARMACIST: "PHARMACIST",
+  ACCOUNTANT: "ACCOUNTANT",
+  ADMIN: "ADMIN",
 };

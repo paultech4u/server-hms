@@ -1,14 +1,15 @@
-const mongoose = require("mongoose");
-const { DEPARTMENT_TYPE } = require("../constants");
-// const { CARDIOLOGIST, SURGEON, DERMATOLOGIST, RADIOLOGIST } = DEPARTMENT_TYPE;
+import mongoose from "mongoose";
+import { USER_ROLE } from "../constants";
+
+const { ADMIN } = USER_ROLE;
 const { Schema } = mongoose;
 
 const DEPARTMENT_SCHEMA = new Schema(
   {
-    name: {
+    departmentName: {
       type: String,
-      // enum: [CARDIOLOGIST, SURGEON, DERMATOLOGIST, RADIOLOGIST],
       required: true,
+      uppercase: true,
     },
     description: {
       type: String,
@@ -16,12 +17,24 @@ const DEPARTMENT_SCHEMA = new Schema(
       maxlength: 50,
       minlength: 10,
     },
+    users: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    creator: {
+      role: {
+        type: [ADMIN],
+        required: true,
+      },
+    },
+    status: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
 
-const departments = mongoose.model("Department", DEPARTMENT_SCHEMA);
-
-module.exports = {
-  departments,
-};
+export const Department = mongoose.model("Department", DEPARTMENT_SCHEMA);

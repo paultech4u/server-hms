@@ -1,18 +1,29 @@
-const express = require("express");
+import express from "express";
+import { body, check, validationResult } from "express-validator";
+import {
+  delete_department,
+  edit_department,
+  create_department,
+  get_departments,
+  get_department,
+} from "../controller/departments/department";
 const router = express.Router();
-const { body, check, validationResult } = require("express-validator");
-const department = require("../controller/departments/department");
 
 router.post(
   "/department",
-  [body("name").trim().notEmpty(), body("description").notEmpty().trim()],
-  department.create_department
+  [
+    body("departmentName").trim().notEmpty(),
+    body("description").notEmpty().trim(),
+  ],
+  create_department
 );
 
-router.get("/departments", department.get_departments);
+router.get("/departments", get_departments);
 
-router.get("/departments/:departmentId", department.get_department);
+router.get("/departments/:departmentId", get_department);
 
-router.delete("/departments/:departmentId", department.delete_department);
+router.put("/departments/:departmentId", edit_department);
 
-module.exports = router;
+router.delete("/departments/:departmentId", delete_department);
+
+export default router;
