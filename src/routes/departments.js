@@ -1,5 +1,5 @@
 import express from "express";
-import { body, check, validationResult } from "express-validator";
+import { body, check } from "express-validator";
 import {
   delete_department,
   edit_department,

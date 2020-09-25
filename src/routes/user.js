@@ -1,8 +1,16 @@
 import express from "express";
 import { body, check } from "express-validator";
-import { signUp, verifyAccount } from "../controller/users/user";
+import {
+  signUp,
+  verifyAccount,
+  login,
+  get_profile,
+  deactivate_account,
+  delete_account,
+} from "../controller/users/user";
 import User from "../model/user";
 import { error } from "../util/error";
+import { isAuth } from "../security/auth/isAuth";
 const router = express.Router();
 
 router.put(
@@ -40,5 +48,13 @@ router.put(
 );
 
 router.get("/user/verify-email", verifyAccount);
+
+router.post("/user/login", login);
+
+router.get("/user/profile", isAuth, get_profile);
+
+router.post("/user/deactivate-account", isAuth, deactivate_account);
+
+router.delete("/user/delete-account/:adminId", delete_account);
 
 export default router;

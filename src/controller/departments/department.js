@@ -142,17 +142,9 @@ export const change_user_department = async (req, res, next) => {};
 
 export const delete_department = async (req, res, next) => {
   const departmentId = req.params.departmentId;
-  const department = await Department.findByIdAndDelete(
-    departmentId,
-    (err, doc) => {
-      if (error) {
-        error(400, "invalid request");
-      }
-      return doc;
-    }
-  );
+  const department = await Department.findByIdAndDelete({ _id: departmentId });
   try {
-    if (department === null) {
+    if (!department) {
       res.status(404).json({
         message: `department not found`,
         department: department,

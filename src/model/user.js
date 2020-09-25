@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { USER_ROLE } from "../constants";
 
 const { Schema } = mongoose;
-const { ACCOUNTANT, DOCTOR, NURSE, PHARMACIST } = USER_ROLE;
+const { ACCOUNTANT, DOCTOR, NURSE, PHARMACIST, ADMIN } = USER_ROLE;
 
 const USER = new Schema(
   {
@@ -31,7 +31,7 @@ const USER = new Schema(
       required: false,
     },
     role: {
-      type: [ACCOUNTANT, DOCTOR, NURSE, PHARMACIST],
+      type: [ACCOUNTANT, DOCTOR, NURSE, PHARMACIST, ADMIN],
       required: true,
     },
     department: {
