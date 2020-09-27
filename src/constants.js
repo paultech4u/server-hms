@@ -5,3 +5,5 @@ exports.USER_ROLE = {
   ACCOUNTANT: "ACCOUNTANT",
   ADMIN: "ADMIN",
 };
+
+exports.ERROR_MESSAGE = {};

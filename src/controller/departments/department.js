@@ -7,7 +7,7 @@ export const create_department = async (req, res, next) => {
   const errors = validationResult(req);
   // TODO check if errors is empty.
   if (!errors.isEmpty()) {
-    error(400, "Invalid request");
+    error(400, "INVALID_REQUEST");
   }
   try {
     const departmentName = req.body.departmentName;
@@ -28,11 +28,11 @@ export const create_department = async (req, res, next) => {
       // TODO save to database
       newDepartment.save();
       return res.status(201).json({
-        message: "Created!",
+        message: "CREATED!",
         newDepartment: newDepartment,
       });
     } else {
-      error(400, "department exists");
+      error(400, "DEPARTMENT_EXISTS");
     }
   } catch (error) {
     if (!error.status) {
@@ -45,7 +45,7 @@ export const create_department = async (req, res, next) => {
 export const get_departments = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    error(400, "Invalid request");
+    error(400, "INVALID_REQUEST");
   }
   const perPage = 5;
   const currentPage = 1;
@@ -56,13 +56,13 @@ export const get_departments = async (req, res, next) => {
       .limit(perPage)
       .orFail(() => {
         // TODO throw error if department is not available
-        error(404, "no department found");
+        error(404, "DEPARTMENT_NOT_FOUND");
       });
     // TODO number of available departments
     const totalDepartments = await Department.find().countDocuments();
 
     res.status(200).json({
-      message: "success !",
+      message: "DEPARTMENT_FETCHED!",
       departments: department,
       totalDepartments: totalDepartments,
     });
@@ -78,16 +78,16 @@ export const get_department = async (req, res, next) => {
   // TODO get a single department
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    error(400, "invalid request");
+    error(400, "INVALID_REQUEST");
   }
   const departmentId = req.params.departmentId;
   const department = await Department.findById(departmentId);
   try {
     if (!department) {
-      error(404, "department not found");
+      error(404, "DEPARTMENT_NOT_FOUND");
     }
     res.status(200).json({
-      message: "department fetched",
+      message: "DEPARTMENT_FETCHED",
       department: department.toJSON(),
     });
   } catch (error) {
@@ -122,12 +122,12 @@ export const edit_department = async (req, res, next) => {
   try {
     if (department === null) {
       res.status(404).json({
-        message: `department not found`,
+        message: 'DEPARTMENT_NOT_FOUND',
         department: department,
       });
     }
     res.status(200).json({
-      message: `update successful !`,
+      message: `UPDATED_DEPARTMENT_SUCCESSFULL!`,
       updatedDepartment: department,
     });
   } catch (error) {
@@ -146,12 +146,12 @@ export const delete_department = async (req, res, next) => {
   try {
     if (!department) {
       res.status(404).json({
-        message: `department not found`,
+        message: "DEPARTMENT_NOT_FOUND",
         department: department,
       });
     }
     res.status(200).json({
-      message: `successfully deleted ${departmentId}`,
+      message: `SUCCESSFULLY_DELETED ${departmentId}`,
       department: department,
     });
   } catch (error) {

@@ -1,11 +1,17 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../../model/user";
+import {
+  signAccessToken,
+  signRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from "../../security/auth/jwt";
 import { Department } from "../../model/department";
 import { error } from "../../util/error";
 import { VerifyEmail } from "../../service/sendemail";
 
-const { JWT_API_KEY } = process.env;
+const { JWT_SECRET_KEY } = process.env;
 
 export const signUp = async (req, res, next) => {
   const {
@@ -31,74 +37,82 @@ export const signUp = async (req, res, next) => {
       error(400, "EMAIL_EXISTS");
     }
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      email: email,
-      fullName: fullName,
-      userName: userName,
-      password: hashPassword,
-      phoneNumber: phoneNumber,
-      role: role,
-      department: department,
-    });
-    const token = jwt.sign(
+
+    const accessToken = jwt.sign(
       {
-        _id: newUser.id,
         email: email,
         fullName: fullName,
+        userName: userName,
+        password: hashPassword,
         phoneNumber: phoneNumber,
         role: role,
         department: department,
-        isVerified: newUser.isVerified,
       },
-      JWT_API_KEY,
+      JWT_SECRET_KEY,
       { expiresIn: "1m" }
     );
     // TODO send a comfirmation message
-    VerifyEmail(email, req.hostname, token, fullName);
-    // TODO save user
-    newUser.save();
-    res.status(200).json({
+    VerifyEmail(email, req.hostname, accessToken, fullName);
+    return res.status(200).json({
       message: "VERIFICATION_MESSAGE_SENT",
     });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
     }
+
     next(error);
   }
 };
 
 // TODO verify a new user account
 export const verifyAccount = async (req, res, next) => {
+  // TODO get id token from the http header query.
   const token = req.query.token;
+  if (!token) {
+    error(404, "ID_TOKEN_NOT_FOUND");
+  }
   let decodedToken;
   try {
-    decodedToken = jwt.verify(token, JWT_API_KEY, (err, decoded) => {
-      if (err) {
-        return res.status(406).json({
-          message: "TOKEN_EXPIRED",
-        });
-      }
-      return decoded;
-    });
+    // TODO verify id token.
+    decodedToken = verifyAccessToken(token);
     if (!decodedToken) {
       error(401, "INVALID_ID_TOKEN");
     }
-    const user = await User.findOne({ email: decodedToken.email });
+    const {
+      email,
+      fullName,
+      userName,
+      password,
+      phoneNumber,
+      role,
+      department,
+    } = decodedToken;
+    const newUser = new User({
+      email: email,
+      fullName: fullName,
+      userName: userName,
+      password: password,
+      phoneNumber: phoneNumber,
+      role: role,
+      department: department,
+    });
+    const user = await User.findOne({ email: email });
     if (!user) {
-      error(400, "USER_NOT_FOUND");
+      newUser.isVerified = true;
+      newUser.save();
+      const userDep = await Department.findOne({
+        departmentName: department,
+      });
+      userDep.users.push(newUser);
+      userDep.save();
+      return res.status(200).json({
+        message: "EMAIL_VERIFIED",
+        payload: newUser,
+      });
+    } else if (user) {
+      error(400, "USER_EXISTS");
     }
-    user.isVerified = true;
-    const userDep = await Department.findOne({
-      departmentName: decodedToken.department,
-    });
-    userDep.users.push(decodedToken);
-    userDep.save();
-    user.save();
-    res.status(200).json({
-      message: "EMAIL_VERIFIED",
-      payload: user,
-    });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -125,24 +139,23 @@ export const login = async (req, res, next) => {
     if (!isEqual) {
       error(401, "INVALID_PASSWORD");
     }
-    const token = jwt.sign(
-      {
-        _id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        phoneNumber: user.phoneNumber,
-        department: user.department,
-        role: user.role,
-        status: user.status,
-      },
-      JWT_API_KEY,
-      { expiresIn: "10m" }
-    );
+    const payload = {
+      _id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      department: user.department,
+      role: user.role,
+      status: user.status,
+    };
+    const accessToken = signAccessToken(user._id, payload);
+    const refreshToken = signRefreshToken(user._id, payload);
     user.status = true;
     user.save();
     res.status(200).json({
       message: "LOGIN_SUCCESSFUL",
-      token: token,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
       payload: user,
     });
   } catch (error) {
@@ -155,7 +168,7 @@ export const login = async (req, res, next) => {
 
 // TODO get a user profile payload from an authorization token
 // TODO if user is authenticated.
-export const get_profile = async (req, res, next) => {
+export const getProfile = async (req, res, next) => {
   const { userId } = req;
   // TODO check if user is authenticated
   try {
@@ -172,17 +185,37 @@ export const get_profile = async (req, res, next) => {
   }
 };
 
-export const resend_token = async (req, res, next) => {};
-
-export const deactivate_account = async (req, res, next) => {
-  const { userId } = req;
+export const refreshToken = async (req, res, next) => {
+  const { refToken } = req.body;
   try {
-    const user = await User.findById(userId);
-    if (!user) {
-      error(404, "USER_NOT_FOUND");
+    if (!refToken) {
+      error(401, "INVALID_REFRESH_TOKEN");
     }
-    user.status = false;
-    user.isVerified = false;
+    const userId = verifyRefreshToken(refToken);
+    const user = await User.findById(userId);
+    if (user.status !== true) {
+      return res.status(401, "USER_NOT_AUTHENTICATED");
+    }
+    if (user.isVerified !== true) {
+      return res.status(401, "USER_NOT_AUTHENTICATED");
+    }
+    const payload = {
+      _id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      department: user.department,
+      role: user.role,
+      status: user.status,
+    };
+    const accessToken = signAccessToken(userId, payload);
+    const refreshToken = signRefreshToken(userId, payload);
+    res.status(200).json({
+      message: "SUCCESS",
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      userId: user._id,
+    });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -191,7 +224,25 @@ export const deactivate_account = async (req, res, next) => {
   }
 };
 
-export const delete_account = async (req, res, next) => {
+export const deactivateAccount = async (req, res, next) => {
+  const { userId } = req;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      error(404, "USER_NOT_FOUND");
+    }
+    user.status = false;
+    user.isVerified = false;
+    user.save();
+  } catch (error) {
+    if (!error.status) {
+      error.status = 500;
+    }
+    next(error);
+  }
+};
+
+export const deleteAccount = async (req, res, next) => {
   const { userId } = req.query;
   const { adminId } = req.params;
   try {
@@ -214,6 +265,26 @@ export const delete_account = async (req, res, next) => {
     userDep.save();
     user.remove();
     res.status(200).json({ message: "SUCCESSFUL" });
+  } catch (error) {
+    if (!error.status) {
+      error.status = 500;
+    }
+    next(error);
+  }
+};
+
+export const logout = async (req, res, next) => {
+  const { userId } = req;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      error(404, "USER_NOT_FOUND");
+    }
+    user.status = false;
+    user.save();
+    res.status(200).json({
+      message: "SUCCESSFUL!",
+    });
   } catch (error) {
     if (!error.status) {
       error.status = 500;

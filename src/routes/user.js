@@ -4,9 +4,11 @@ import {
   signUp,
   verifyAccount,
   login,
-  get_profile,
-  deactivate_account,
-  delete_account,
+  getProfile,
+  deactivateAccount,
+  deleteAccount,
+  refreshToken,
+  logout,
 } from "../controller/users/user";
 import User from "../model/user";
 import { error } from "../util/error";
@@ -20,7 +22,7 @@ router.put(
       .custom(async (value, { req }) => {
         const user = await User.findOne({ email: value });
         if (user.email === req.body.email) {
-          error(406, "email exists");
+          error(406, "EMAIL_EXISTS");
         }
       })
       .not()
@@ -30,7 +32,7 @@ router.put(
     check("phoneNumber").custom(async (value) => {
       const phone = await User.findOne({ phoneNumber: value });
       if (phone) {
-        error(406, "email exists");
+        error(406, "NUMBER_EXISTS");
       }
     }),
     check("password")
@@ -49,12 +51,20 @@ router.put(
 
 router.get("/user/verify-email", verifyAccount);
 
-router.post("/user/login", login);
+router.post(
+  "/user/login",
+  check("email").not().isEmpty().normalizeEmail().trim(),
+  login
+);
 
-router.get("/user/profile", isAuth, get_profile);
+router.get("/user/profile", isAuth, getProfile);
 
-router.post("/user/deactivate-account", isAuth, deactivate_account);
+router.post("/refreshToken", refreshToken);
 
-router.delete("/user/delete-account/:adminId", delete_account);
+router.post("/user/deactivate-account", isAuth, deactivateAccount);
+
+router.delete("/user/delete-account/:adminId", deleteAccount);
+
+router.post("/user/logout", isAuth, logout);
 
 export default router;
