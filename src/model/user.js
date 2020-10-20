@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { USER_ROLE } from "../constants";
 
 const { Schema } = mongoose;
-const { ACCOUNTANT, DOCTOR, NURSE, PHARMACIST, ADMIN } = USER_ROLE;
+const { ACCOUNTANT, DOCTOR, NURSE, PHARMACIST } = USER_ROLE;
 
 const USER = new Schema(
   {
@@ -10,11 +10,21 @@ const USER = new Schema(
       type: String,
       required: true,
     },
-    fullName: {
-      type: String,
-      required: true,
+    name: {
+      first: {
+        type: String,
+        required: true,
+      },
+      middle: {
+        type: String,
+        required: false,
+      },
+      sur: {
+        type: String,
+        required: true,
+      },
     },
-    userName: {
+    username: {
       type: String,
       required: false,
     },
@@ -22,7 +32,7 @@ const USER = new Schema(
       type: String || Number,
       required: true,
     },
-    phoneNumber: {
+    tel: {
       type: String,
       required: true,
     },
@@ -31,16 +41,26 @@ const USER = new Schema(
       required: false,
     },
     role: {
-      type: [ACCOUNTANT, DOCTOR, NURSE, PHARMACIST, ADMIN],
+      type: [ACCOUNTANT, DOCTOR, NURSE, PHARMACIST],
+      required: true,
+    },
+    hospital: {
+      type: Schema.Types.ObjectId,
+      ref: "Hospital",
       required: true,
     },
     department: {
-      type: Schema.Types.String,
+      type: Schema.Types.ObjectId,
       ref: "Department",
       required: true,
     },
-    status: {
+    isActive: {
       type: Boolean,
+      default: false,
+    },
+    isAdmin: {
+      type: Boolean,
+      required: false,
       default: false,
     },
     isVerified: {

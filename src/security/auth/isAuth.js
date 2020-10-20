@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { User } from "../../model/user";
 
 // TODO check if user is authenticated
 const { JWT_SECRET_KEY } = process.env;
@@ -29,6 +30,20 @@ export const isAuth = async (req, res, next) => {
       message: "NOT_AUTHENTICATED",
     });
   }
-  req.userId = decodedToken._id;
+  const user = User.findById(decodedToken._id);
+  if (!user) {
+    return res.status(401).json({
+      message: "USER_DO_NOT_EXIST",
+    });
+  }
+  if (user) {
+    if (user.isActive === false) {
+      return res.status(401).json({
+        message: "NOT_AUTHENTICATED",
+      });
+    } else {
+      req.userId = decodedToken._id;
+    }
+  }
   next();
 };

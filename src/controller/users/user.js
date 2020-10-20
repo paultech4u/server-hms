@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../../model/user";
+import { Admin } from "../../model/admin";
 import {
   signAccessToken,
   signRefreshToken,
@@ -9,52 +10,66 @@ import {
 } from "../../security/auth/jwt";
 import { Department } from "../../model/department";
 import { error } from "../../util/error";
-import { VerifyEmail } from "../../service/sendemail";
+import { EmailConfirmation } from "../../service/sendgrid";
+import { Hospital } from "../../model/hospital";
 
 const { JWT_SECRET_KEY } = process.env;
 
 export const signUp = async (req, res, next) => {
   const {
-    fullName,
-    userName,
+    firstname,
+    surname,
+    middlename,
+    username,
     email,
     password,
-    phoneNumber,
+    tel,
+    hospital,
     role,
     department,
   } = req.body;
 
   // TODO check if department exists
   try {
-    const departments = await Department.findOne().where({
-      departmentName: department,
-    });
+    const departments = await Department.findOne({ name: department });
     if (!departments) {
-      error(400, "DEPARTMENT_NOT_FOUND");
+      error(400, "Department not found");
     }
-    const isExits = await User.findOne({ email: email });
-    if (isExits) {
-      error(400, "EMAIL_EXISTS");
+    const hospitals = await Hospital.findOne({ name: hospital });
+    if (!hospitals) {
+      error(400, "Hospital not found");
+    }
+    const user = await User.findOne({ email: email });
+    if (user) {
+      error(302, "User exists");
     }
     const hashPassword = await bcrypt.hash(password, 10);
-
+    const newUser = new User({
+      email: email,
+      name: {
+        first: firstname,
+        middle: middlename,
+        sur: surname,
+      },
+      username: username,
+      password: hashPassword,
+      tel: tel,
+      role: role,
+      hospital: hospitals._id,
+      department: departments,
+    });
+    await newUser.save();
     const accessToken = jwt.sign(
       {
-        email: email,
-        fullName: fullName,
-        userName: userName,
-        password: hashPassword,
-        phoneNumber: phoneNumber,
-        role: role,
-        department: department,
+        _id: newUser._id,
       },
       JWT_SECRET_KEY,
-      { expiresIn: "1m" }
+      { expiresIn: "1d" }
     );
     // TODO send a comfirmation message
-    VerifyEmail(email, req.hostname, accessToken, fullName);
+    EmailConfirmation(email, req.hostname, accessToken, firstname);
     return res.status(200).json({
-      message: "VERIFICATION_MESSAGE_SENT",
+      message: "Confirmation message sent",
     });
   } catch (error) {
     if (!error.status) {
@@ -66,54 +81,39 @@ export const signUp = async (req, res, next) => {
 };
 
 // TODO verify a new user account
-export const verifyAccount = async (req, res, next) => {
+export const confirm_email = async (req, res, next) => {
   // TODO get id token from the http header query.
-  const token = req.query.token;
+  const { token } = req.query;
   if (!token) {
-    error(404, "ID_TOKEN_NOT_FOUND");
+    error(404, "IdToken not found");
   }
   let decodedToken;
   try {
     // TODO verify id token.
     decodedToken = verifyAccessToken(token);
     if (!decodedToken) {
-      error(401, "INVALID_ID_TOKEN");
+      error(401, "Invalid token");
     }
-    const {
-      email,
-      fullName,
-      userName,
-      password,
-      phoneNumber,
-      role,
-      department,
-    } = decodedToken;
-    const newUser = new User({
-      email: email,
-      fullName: fullName,
-      userName: userName,
-      password: password,
-      phoneNumber: phoneNumber,
-      role: role,
-      department: department,
-    });
-    const user = await User.findOne({ email: email });
+    const { _id } = decodedToken;
+    const user = await User.findById({ _id: _id });
     if (!user) {
-      newUser.isVerified = true;
-      newUser.save();
-      const userDep = await Department.findOne({
-        departmentName: department,
-      });
-      userDep.users.push(newUser);
-      userDep.save();
       return res.status(200).json({
-        message: "EMAIL_VERIFIED",
+        message: "Invalid user id",
+      });
+    }
+    user.isVerified = true;
+    const [newUser] = await Promise.all([user.save()]);
+    if (newUser) {
+      return res.status(200).json({
+        message: "Email verified",
         payload: newUser,
       });
-    } else if (user) {
-      error(400, "USER_EXISTS");
     }
+    return res.status(401).json({
+      message: "Email not verified",
+    });
   } catch (error) {
+    console.log(error);
     if (!error.status) {
       error.status = 500;
     }
@@ -122,40 +122,36 @@ export const verifyAccount = async (req, res, next) => {
 };
 
 export const login = async (req, res, next) => {
-  const { email, phoneNumber, password } = req.body;
+  const { email, tel, password } = req.body;
   try {
     const user = await User.findOne({
-      $or: [{ email: email }, { phoneNumber: phoneNumber }],
+      $or: [{ email: email }, { tel: tel }],
     });
     if (!user) {
-      error(404, "EMAIL_NOT_FOUND");
+      error(404, "User not found");
     }
-    if (!user.isVerified) {
+    if (user.isVerified === false) {
       return res.status(401).json({
-        message: "EMAIL_NOT_VERIFIED",
+        message: "Email not verified",
       });
     }
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      error(401, "INVALID_PASSWORD");
+      error(401, "Wrong password");
     }
     const payload = {
       _id: user.id,
-      email: user.email,
-      fullName: user.fullName,
-      phoneNumber: user.phoneNumber,
-      department: user.department,
-      role: user.role,
-      status: user.status,
+      isActive: true,
     };
     const accessToken = signAccessToken(user._id, payload);
     const refreshToken = signRefreshToken(user._id, payload);
-    user.status = true;
+    user.isActive = true;
     user.save();
     res.status(200).json({
-      message: "LOGIN_SUCCESSFUL",
+      message: "Successful",
       accessToken: accessToken,
       refreshToken: refreshToken,
+      userId: user._id,
       payload: user,
     });
   } catch (error) {
@@ -170,13 +166,13 @@ export const login = async (req, res, next) => {
 // TODO if user is authenticated.
 export const getProfile = async (req, res, next) => {
   const { userId } = req;
-  // TODO check if user is authenticated
+  // TODO check if user is authenticated{
   try {
     const user = await User.findOne({ _id: userId });
     if (!user) {
-      error(404, "USER_NOT_FOUND");
+      error(404, "User not found");
     }
-    res.status(200).json({ message: "SUCCESSFUL", profile: user });
+    res.status(200).json({ message: "Successful", profile: user });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -189,32 +185,25 @@ export const refreshToken = async (req, res, next) => {
   const { refToken } = req.body;
   try {
     if (!refToken) {
-      error(401, "INVALID_REFRESH_TOKEN");
+      error(401, "No refresh token");
     }
     const userId = verifyRefreshToken(refToken);
     const user = await User.findById(userId);
-    if (user.status !== true) {
-      return res.status(401, "USER_NOT_AUTHENTICATED");
-    }
-    if (user.isVerified !== true) {
-      return res.status(401, "USER_NOT_AUTHENTICATED");
+    if (user.isActive !== true && user.isVerified !== true) {
+      return res.status(401, "User not authenticated");
     }
     const payload = {
       _id: user.id,
-      email: user.email,
-      fullName: user.fullName,
-      phoneNumber: user.phoneNumber,
-      department: user.department,
-      role: user.role,
-      status: user.status,
+      isActive: true,
     };
     const accessToken = signAccessToken(userId, payload);
     const refreshToken = signRefreshToken(userId, payload);
     res.status(200).json({
-      message: "SUCCESS",
+      message: "Success",
       accessToken: accessToken,
       refreshToken: refreshToken,
       userId: user._id,
+      user: user,
     });
   } catch (error) {
     if (!error.status) {
@@ -224,14 +213,14 @@ export const refreshToken = async (req, res, next) => {
   }
 };
 
-export const deactivateAccount = async (req, res, next) => {
+export const deactivateUser = async (req, res, next) => {
   const { userId } = req;
   try {
     const user = await User.findById(userId);
     if (!user) {
-      error(404, "USER_NOT_FOUND");
+      error(404, "User not found");
     }
-    user.status = false;
+    user.isActive = false;
     user.isVerified = false;
     user.save();
   } catch (error) {
@@ -242,29 +231,101 @@ export const deactivateAccount = async (req, res, next) => {
   }
 };
 
-export const deleteAccount = async (req, res, next) => {
-  const { userId } = req.query;
+export const deleteUser = async (req, res, next) => {
+  const { id } = req.query;
   const { adminId } = req.params;
   try {
-    const role = await User.findOne({
+    const admin = await Admin.findOne({
       _id: adminId,
     });
-    if (role.role[0] !== "ADMIN" || !role) {
+    if (admin.isAdmin === false) {
       return res.status(401).json({
-        message: "UNAUTHORIZED",
+        message: "Unauthorized",
       });
     }
-    const user = await User.findById(userId);
+    const user = await User.findById(id);
     if (!user) {
-      error(404, "USER_NOT_FOUND");
+      error(404, "User not found");
     }
-    const userDep = await Department.findOne({
-      departmentName: user.department,
-    });
-    userDep.users.pull(user);
-    userDep.save();
+    if (adminId === user._id) {
+      error(403, "Forbidden");
+    }
+    // Todo check hospital admins if user is an admin
+    let isAdmin;
+    const hospital = await Hospital.findOne({ name: admin.hospital });
+    const checkAdmin = (arr) => {
+      for (let x in arr) {
+        return x._id === admin._id;
+      }
+    };
+    isAdmin = hospital.admins;
+    if (checkAdmin(isAdmin)) {
+      hospital.admins.pull(admin._id);
+      hospital.save();
+      user.remove();
+      res.status(200).json({ message: "Success" });
+    }
     user.remove();
-    res.status(200).json({ message: "SUCCESSFUL" });
+    return res.status(200).json({ message: "Success" });
+  } catch (error) {
+    if (!error.status) {
+      error.status = 500;
+    }
+    next(error);
+  }
+};
+
+// Assign a user to be an admin
+export const admin = async (req, res, next) => {
+  const { id } = req.body;
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      error(404, "User not found");
+    }
+    if (user) {
+      if (user.isAdmin !== true && user.isVerified === true) {
+        const email = user.email;
+        //  Todo check if user is already an admin
+        const admin = await Admin.findOne({ email: email });
+        if (admin) {
+          return res.status(302).json({
+            message: "User is already an admin",
+          });
+        }
+        const hospId = await Hospital.findById(user.hospital);
+        if (!hospId) {
+          return res.status(404).json({
+            message: "Hospital does not exist",
+          });
+        }
+        // Todo attach user payload to admin model
+        const newAdmin = new Admin({
+          _id: user._id,
+          name: user.username,
+          email: user.email,
+          // imageUrl: user.imageUrl,
+          password: user.password,
+          hospital: hospId._id,
+          status: true,
+          isAdmin: true,
+        });
+        user.isAdmin = true;
+        const [a, u] = await Promise.all([newAdmin.save(), user.save()]);
+        if (a && u) {
+          return res.status(200).json({
+            message: "Successful",
+          });
+        }
+        return res.status(200).json({
+          message: "Unsuccessful",
+        });
+      } else {
+        return res.status(302).json({
+          message: "User is not entitled",
+        });
+      }
+    }
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -278,12 +339,12 @@ export const logout = async (req, res, next) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      error(404, "USER_NOT_FOUND");
+      error(404, "User not found");
     }
-    user.status = false;
+    user.isActive = false;
     user.save();
     res.status(200).json({
-      message: "SUCCESSFUL!",
+      message: "Successful!",
     });
   } catch (error) {
     if (!error.status) {

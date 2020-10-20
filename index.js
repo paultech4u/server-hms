@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import DATABASE from "./src/database/db";
 import USER_ROUTE from "./src/routes/user";
 import DEPARTMENT_ROUTE from "./src/routes/departments";
+import HOSPITAL_ROUTE from "./src/routes/hospital";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 
 app.use(USER_ROUTE);
 app.use(DEPARTMENT_ROUTE);
+app.use(HOSPITAL_ROUTE);
 
 app.use((error, req, res, next) => {
   const status = error.status || 500;

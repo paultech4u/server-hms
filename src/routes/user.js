@@ -2,39 +2,29 @@ import express from "express";
 import { body, check } from "express-validator";
 import {
   signUp,
-  verifyAccount,
+  confirm_email,
   login,
   getProfile,
-  deactivateAccount,
-  deleteAccount,
+  deactivateUser,
+  deleteUser,
   refreshToken,
   logout,
+  admin,
 } from "../controller/users/user";
-import User from "../model/user";
-import { error } from "../util/error";
+// import User from "../model/user";
+// import { error } from "../util/error";
 import { isAuth } from "../security/auth/isAuth";
 const router = express.Router();
 
 router.put(
   "/user/signup",
   [
-    check("email")
-      .custom(async (value, { req }) => {
-        const user = await User.findOne({ email: value });
-        if (user.email === req.body.email) {
-          error(406, "EMAIL_EXISTS");
-        }
-      })
+    body("email")
       .not()
       .isEmpty()
       .normalizeEmail({ all_lowercase: true })
       .trim(),
-    check("phoneNumber").custom(async (value) => {
-      const phone = await User.findOne({ phoneNumber: value });
-      if (phone) {
-        error(406, "NUMBER_EXISTS");
-      }
-    }),
+    body("tel").isNumeric({ no_symbols: true }).not().isEmpty(),
     check("password")
       .isLength({ min: 8 })
       .matches("/d/")
@@ -43,13 +33,16 @@ router.put(
       .isEmpty()
       .trim(),
     body("role").not().isEmpty().trim(),
-    body("fullname").not().isEmpty().trim(),
+    body("firstname").not().isEmpty().trim(),
+    body("middlename").not().isEmpty().trim(),
+    body("surname").not().isEmpty().trim(),
+    body("username").not().isEmpty().trim(),
     body("department").not().isEmpty().trim(),
   ],
   signUp
 );
 
-router.get("/user/verify-email", verifyAccount);
+router.get("/user/confirm-email", confirm_email);
 
 router.post(
   "/user/login",
@@ -61,9 +54,11 @@ router.get("/user/profile", isAuth, getProfile);
 
 router.post("/refreshToken", refreshToken);
 
-router.post("/user/deactivate-account", isAuth, deactivateAccount);
+router.post("/user/deactivate", isAuth, deactivateUser);
 
-router.delete("/user/delete-account/:adminId", deleteAccount);
+router.post("/admin", admin);
+
+router.delete("/user/delete/:adminId", deleteUser);
 
 router.post("/user/logout", isAuth, logout);
 

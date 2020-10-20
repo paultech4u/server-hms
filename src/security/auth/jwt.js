@@ -11,7 +11,7 @@ export const signAccessToken = (userId, payload) => {
     });
     return accessToken;
   } catch (err) {
-    error(422, "UNPROCCESSABLE_ENTITY");
+    error(422, "Unprocessable entity");
   }
 };
 
@@ -20,7 +20,7 @@ export const verifyAccessToken = (token) => {
     const accessToken = jwt.verify(token, JWT_SECRET_KEY);
     return accessToken;
   } catch (error) {
-    error(406, "TOKEN_EXPIRED");
+    error(406, "Token expired");
   }
 };
 
@@ -32,7 +32,7 @@ export const signRefreshToken = (userId, payload) => {
     });
     return refreshToken;
   } catch (error) {
-    error(422, "UNPROCCESSABLE_ENTITY");
+    error(422, "Unprocessable entity");
   }
 };
 
@@ -42,6 +42,6 @@ export const verifyRefreshToken = (refreshToken) => {
     const userId = decodedToken.aud;
     return userId;
   } catch (error) {
-    error(422, "UNPROCCESSABLE_ENTITY");
+    error(422, "Unprocessable entity");
   }
 };

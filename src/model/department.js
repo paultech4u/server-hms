@@ -1,40 +1,35 @@
 import mongoose from "mongoose";
-import { USER_ROLE } from "../constants";
-
-const { ADMIN } = USER_ROLE;
 const { Schema } = mongoose;
 
 const DEPARTMENT_SCHEMA = new Schema(
   {
-    departmentName: {
+    name: {
       type: String,
       required: true,
       uppercase: true,
     },
     description: {
       type: String,
+      required: false,
+      // maxlength: 50,
+      // minlength: 10,
+    },
+    hospital: {
+      type: Schema.Types.ObjectId,
+      ref: "Hospital",
       required: true,
-      maxlength: 50,
-      minlength: 10,
     },
-    users: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
     creator: {
-      role: {
-        type: [ADMIN],
-        required: true,
-      },
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+      required: false,
     },
-    status: {
+    isActive: {
       type: Boolean,
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true, autoCreate: true }
 );
 
 export const Department = mongoose.model("Department", DEPARTMENT_SCHEMA);
