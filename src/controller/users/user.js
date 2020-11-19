@@ -12,8 +12,17 @@ import { Department } from "../../model/department";
 import { error } from "../../util/error";
 import { EmailConfirmation } from "../../service/sendgrid";
 import { Hospital } from "../../model/hospital";
+import { validationResult } from "express-validator";
 
 const { JWT_SECRET_KEY } = process.env;
+/**
+ * @global
+ * @param  {Object} req - request object
+ * @param  {string} req.body
+ * @param  {Object} res - response object
+ * @param  {Function} next - middleware
+ */
+
 
 export const signUp = async (req, res, next) => {
   const {
@@ -326,6 +335,87 @@ export const admin = async (req, res, next) => {
         });
       }
     }
+  } catch (error) {
+    if (!error.status) {
+      error.status = 500;
+    }
+    next(error);
+  }
+};
+
+export const password_reset = async (req, res, next) => {
+  const { oldPass, newPass, tel, email } = req.body;
+  const errors = validationResult(req);
+  try {
+    if (!errors.isEmpty()) {
+      return res.status(406).json({
+        message: errors.mapped(),
+      });
+    }
+    const user = await User.findOne({ tel: tel }).or([{ email: email }]);
+    if (!user) {
+      res.status(404).json({
+        message: `${email} is not a registered address`,
+      });
+    }
+    const isEqual = await bcrypt.compare(newPass, user.password);
+    console.log(isEqual);
+    if (isEqual) {
+      return res.status(406).json({
+        message: "new password must not be the same with the old password",
+      });
+    }
+    const hashPassword = await bcrypt.hash(newPass, 10);
+    user.password = hashPassword;
+    const [u] = await Promise.all([user.save()]);
+    if (u) {
+      return res.status(200).json({
+        message: "Ok",
+      });
+    }
+    return res.status(406).json({
+      message: "Unsuccessful",
+    });
+  } catch (error) {
+    if (!error.status) {
+      error.status = 500;
+    }
+    next(error);
+  }
+};
+
+export const change_password = async (req, res, next) => {
+  const { userId } = req;
+  const { newPass } = req.body;
+  if (!userId) {
+    return res.status(407).json({
+      message: "Not authenticated",
+    });
+  }
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    const isEqual = await bcrypt.compare(newPass, user.password);
+    if (isEqual) {
+      return res.status(406).json({
+        message: "new password must not be the same with the old password",
+      });
+    }
+    const hashPassword = await bcrypt.hash(newPass, 10);
+    user.password = hashPassword;
+    const [u] = await Promise.all([user.save()]);
+    if (u) {
+      return res.status(200).json({
+        message: "Ok",
+      });
+    }
+    return res.status(406).json({
+      message: "Unsuccessful",
+    });
   } catch (error) {
     if (!error.status) {
       error.status = 500;

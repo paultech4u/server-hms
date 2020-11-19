@@ -7,7 +7,7 @@ export const isAuth = async (req, res, next) => {
   const authheader = req.get("Authorization");
   if (!authheader) {
     return res.status(401).json({
-      message: "NOT_AUTHENTICATED",
+      message: "Not authenticated",
     });
   }
   const token = await authheader.split(" ")[1];
@@ -27,19 +27,19 @@ export const isAuth = async (req, res, next) => {
   }
   if (!decodedToken) {
     return res.status(401).json({
-      message: "NOT_AUTHENTICATED",
+      message: "Token is not valid",
     });
   }
   const user = User.findById(decodedToken._id);
   if (!user) {
     return res.status(401).json({
-      message: "USER_DO_NOT_EXIST",
+      message: "User does not exist",
     });
   }
   if (user) {
     if (user.isActive === false) {
       return res.status(401).json({
-        message: "NOT_AUTHENTICATED",
+        message: "Not authenticated",
       });
     } else {
       req.userId = decodedToken._id;

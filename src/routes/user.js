@@ -8,6 +8,7 @@ import {
   deactivateUser,
   deleteUser,
   refreshToken,
+  password_reset,
   logout,
   admin,
 } from "../controller/users/user";
@@ -24,7 +25,7 @@ router.put(
       .isEmpty()
       .normalizeEmail({ all_lowercase: true })
       .trim(),
-    body("tel").isNumeric({ no_symbols: true }).not().isEmpty(),
+    body("tel").isNumeric().isMobilePhone().not().isEmpty(),
     check("password")
       .isLength({ min: 8 })
       .matches("/d/")
@@ -32,12 +33,18 @@ router.put(
       .not()
       .isEmpty()
       .trim(),
-    body("role").not().isEmpty().trim(),
-    body("firstname").not().isEmpty().trim(),
-    body("middlename").not().isEmpty().trim(),
-    body("surname").not().isEmpty().trim(),
-    body("username").not().isEmpty().trim(),
-    body("department").not().isEmpty().trim(),
+    body([
+      "role",
+      "firstname",
+      "middlename",
+      "surname",
+      "username",
+      "department",
+    ])
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage("must contain a character"),
   ],
   signUp
 );
@@ -57,6 +64,22 @@ router.post("/refreshToken", refreshToken);
 router.post("/user/deactivate", isAuth, deactivateUser);
 
 router.post("/admin", admin);
+
+router.put(
+  "/reset-password",
+  [
+    body(["newPass", "tel", "email", "oldPass"])
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage("must contain a character value"),
+    body("tel")
+      .isNumeric()
+      .isMobilePhone()
+      .withMessage("must be a valid mobile number"),
+  ],
+  password_reset
+);
 
 router.delete("/user/delete/:adminId", deleteUser);
 

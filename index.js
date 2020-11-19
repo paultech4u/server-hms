@@ -10,7 +10,7 @@ const app = express();
 
 dotenv.config({ path: "./.env" });
 
-const { PORT } = process.env;
+const  PORT  = process.env.PORT || 4000;
 
 app.use(bodyParser.json());
 
