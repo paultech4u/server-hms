@@ -6,8 +6,8 @@ import {
   create_department,
   get_departments,
   get_department,
-} from "../controller/departments/department";
-import { isAuth } from "../security/auth/isAuth";
+} from "../departments/department";
+import { isAuth } from "../../security/auth/isAuth";
 const router = express.Router();
 
 router.post(

@@ -1,20 +1,19 @@
 import express from "express";
 import { body, check } from "express-validator";
 import {
-  signUp,
-  confirm_email,
-  login,
-  getProfile,
-  deactivateUser,
-  deleteUser,
-  refreshToken,
-  password_reset,
-  logout,
   admin,
-} from "../controller/users/user";
-// import User from "../model/user";
-// import { error } from "../util/error";
-import { isAuth } from "../security/auth/isAuth";
+  userLogin,
+  userDelete,
+  userSignup,
+  userLogout,
+  refreshToken,
+  userGetProfile,
+  userDeactivate,
+  userVerification,
+  userResetPassword,
+  userForgetPassword,
+} from "./user";
+import { isAuth } from "../../security/auth/isAuth";
 const router = express.Router();
 
 router.put(
@@ -27,8 +26,7 @@ router.put(
       .trim(),
     body("tel").isNumeric().isMobilePhone().not().isEmpty(),
     check("password")
-      .isLength({ min: 8 })
-      .matches("/d/")
+      .isLength({ min: 8, max: 20 })
       .withMessage("must contain a number")
       .not()
       .isEmpty()
@@ -46,29 +44,34 @@ router.put(
       .trim()
       .withMessage("must contain a character"),
   ],
-  signUp
+  userSignup
 );
 
-router.get("/user/confirm-email", confirm_email);
+router.get("/user/confirm-email", userVerification);
 
 router.post(
   "/user/login",
   check("email").not().isEmpty().normalizeEmail().trim(),
-  login
+  userLogin
 );
 
-router.get("/user/profile", isAuth, getProfile);
+router.get("/user/profile", isAuth, userGetProfile);
 
-router.post("/refreshToken", refreshToken);
+router.post("/:token", refreshToken);
 
-router.post("/user/deactivate", isAuth, deactivateUser);
+router.put("/user/deactivate", isAuth, userDeactivate);
 
 router.post("/admin", admin);
-
 router.put(
-  "/reset-password",
+  "/user/reset-password",
+  [body("password").not().isEmpty().isLength({ max: 30, min: 8 }).trim()],
+  isAuth,
+  userResetPassword
+);
+router.put(
+  "/forget-password",
   [
-    body(["newPass", "tel", "email", "oldPass"])
+    body(["newPass", "tel", "email"])
       .not()
       .isEmpty()
       .trim()
@@ -78,11 +81,11 @@ router.put(
       .isMobilePhone()
       .withMessage("must be a valid mobile number"),
   ],
-  password_reset
+  userForgetPassword
 );
 
-router.delete("/user/delete/:adminId", deleteUser);
+router.delete("/user/delete/:adminId", userDelete);
 
-router.post("/user/logout", isAuth, logout);
+router.post("/user/logout", isAuth, userLogout);
 
 export default router;

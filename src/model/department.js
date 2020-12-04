@@ -6,18 +6,15 @@ const DEPARTMENT_SCHEMA = new Schema(
     name: {
       type: String,
       required: true,
-      uppercase: true,
     },
     description: {
       type: String,
       required: false,
-      // maxlength: 50,
-      // minlength: 10,
     },
     hospital: {
       type: Schema.Types.ObjectId,
       ref: "Hospital",
-      required: true,
+      required: false,
     },
     creator: {
       type: Schema.Types.ObjectId,

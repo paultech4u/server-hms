@@ -47,12 +47,12 @@ const USER = new Schema(
     hospital: {
       type: Schema.Types.ObjectId,
       ref: "Hospital",
-      required: true,
+      required: false,
     },
     department: {
       type: Schema.Types.ObjectId,
       ref: "Department",
-      required: true,
+      required: false,
     },
     isActive: {
       type: Boolean,

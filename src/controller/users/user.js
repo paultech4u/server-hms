@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import { User } from "../../model/user";
 import { Admin } from "../../model/admin";
 import {
@@ -10,7 +10,7 @@ import {
 } from "../../security/auth/jwt";
 import { Department } from "../../model/department";
 import { error } from "../../util/error";
-import { EmailConfirmation } from "../../service/sendgrid";
+import { SendMail } from "../../service/sendgrid";
 import { Hospital } from "../../model/hospital";
 import { validationResult } from "express-validator";
 
@@ -18,13 +18,11 @@ const { JWT_SECRET_KEY } = process.env;
 /**
  * @global
  * @param  {Object} req - request object
- * @param  {string} req.body
  * @param  {Object} res - response object
  * @param  {Function} next - middleware
  */
 
-
-export const signUp = async (req, res, next) => {
+export const userSignup = async (req, res, next) => {
   const {
     firstname,
     surname,
@@ -41,12 +39,14 @@ export const signUp = async (req, res, next) => {
   // TODO check if department exists
   try {
     const departments = await Department.findOne({ name: department });
-    if (!departments) {
-      error(400, "Department not found");
-    }
     const hospitals = await Hospital.findOne({ name: hospital });
-    if (!hospitals) {
-      error(400, "Hospital not found");
+    if (!departments || !hospitals) {
+      error(
+        404,
+        `${
+          !departments === false ? "Hospital not found" : "Department not found"
+        }`
+      );
     }
     const user = await User.findOne({ email: email });
     if (user) {
@@ -76,25 +76,25 @@ export const signUp = async (req, res, next) => {
       { expiresIn: "1d" }
     );
     // TODO send a comfirmation message
-    EmailConfirmation(email, req.hostname, accessToken, firstname);
-    return res.status(200).json({
-      message: "Confirmation message sent",
+    SendMail(email, req.hostname, accessToken, firstname);
+    res.status(200).json({
+      msg: "Confirmation message sent",
     });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
     }
-
     next(error);
+    return error;
   }
 };
 
 // TODO verify a new user account
-export const confirm_email = async (req, res, next) => {
+export const userVerification = async (req, res, next) => {
   // TODO get id token from the http header query.
   const { token } = req.query;
   if (!token) {
-    error(404, "IdToken not found");
+    error(404, "Token ID not found");
   }
   let decodedToken;
   try {
@@ -106,31 +106,29 @@ export const confirm_email = async (req, res, next) => {
     const { _id } = decodedToken;
     const user = await User.findById({ _id: _id });
     if (!user) {
-      return res.status(200).json({
-        message: "Invalid user id",
-      });
+      error(404, "User not found");
     }
     user.isVerified = true;
     const [newUser] = await Promise.all([user.save()]);
     if (newUser) {
-      return res.status(200).json({
-        message: "Email verified",
+      res.status(200).json({
+        msg: "Email verified",
         payload: newUser,
       });
     }
-    return res.status(401).json({
-      message: "Email not verified",
+    res.status(401).json({
+      msg: "Email not verified",
     });
   } catch (error) {
-    console.log(error);
     if (!error.status) {
       error.status = 500;
     }
     next(error);
+    return error;
   }
 };
 
-export const login = async (req, res, next) => {
+export const userLogin = async (req, res, next) => {
   const { email, tel, password } = req.body;
   try {
     const user = await User.findOne({
@@ -140,8 +138,8 @@ export const login = async (req, res, next) => {
       error(404, "User not found");
     }
     if (user.isVerified === false) {
-      return res.status(401).json({
-        message: "Email not verified",
+      res.status(401).json({
+        msg: "Email not verified",
       });
     }
     const isEqual = await bcrypt.compare(password, user.password);
@@ -154,14 +152,16 @@ export const login = async (req, res, next) => {
     };
     const accessToken = signAccessToken(user._id, payload);
     const refreshToken = signRefreshToken(user._id, payload);
+    const verifyToken = verifyAccessToken(accessToken);
     user.isActive = true;
     user.save();
     res.status(200).json({
-      message: "Successful",
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      userId: user._id,
-      payload: user,
+      msg: "Ok",
+      email: user.email,
+      user_id: user._id,
+      id_token: accessToken,
+      expires_in: verifyToken.exp,
+      refresh_token: refreshToken,
     });
   } catch (error) {
     if (!error.status) {
@@ -173,46 +173,51 @@ export const login = async (req, res, next) => {
 
 // TODO get a user profile payload from an authorization token
 // TODO if user is authenticated.
-export const getProfile = async (req, res, next) => {
+export const userGetProfile = async (req, res, next) => {
   const { userId } = req;
-  // TODO check if user is authenticated{
+  // TODO check if user exits
   try {
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findOne({ _id: userId })
+      .populate("hospital", "name -_id")
+      .populate("department", "name -_id")
+      .exec();
     if (!user) {
       error(404, "User not found");
     }
-    res.status(200).json({ message: "Successful", profile: user });
+    res.status(200).json({ msg: "OK", user: user });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
+      error.message = "Unable to fetch profile";
     }
     next(error);
   }
 };
 
 export const refreshToken = async (req, res, next) => {
-  const { refToken } = req.body;
+  const { token } = req.params;
   try {
-    if (!refToken) {
+    if (!token) {
       error(401, "No refresh token");
     }
-    const userId = verifyRefreshToken(refToken);
-    const user = await User.findById(userId);
+    const userID = verifyRefreshToken(token);
+    const user = await User.findById(userID);
     if (user.isActive !== true && user.isVerified !== true) {
-      return res.status(401, "User not authenticated");
+      res.status(401, "User not authenticated");
     }
     const payload = {
       _id: user.id,
       isActive: true,
     };
-    const accessToken = signAccessToken(userId, payload);
-    const refreshToken = signRefreshToken(userId, payload);
+    const accessToken = signAccessToken(userID, payload);
+    const refreshToken = signRefreshToken(userID, payload);
+    const verifyToken = verifyAccessToken(accessToken);
     res.status(200).json({
-      message: "Success",
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      userId: user._id,
-      user: user,
+      msg: "OK",
+      user_id: user._id,
+      expiresIn: verifyToken.exp,
+      refresh_token: refreshToken,
+      access_token: accessToken,
     });
   } catch (error) {
     if (!error.status) {
@@ -222,16 +227,19 @@ export const refreshToken = async (req, res, next) => {
   }
 };
 
-export const deactivateUser = async (req, res, next) => {
-  const { userId } = req;
+export const userDeactivate = async (req, res, next) => {
+  const { user_id } = req.body;
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(user_id);
     if (!user) {
       error(404, "User not found");
     }
     user.isActive = false;
     user.isVerified = false;
     user.save();
+    res.status(200).json({
+      msg: "User disabled",
+    });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -240,7 +248,7 @@ export const deactivateUser = async (req, res, next) => {
   }
 };
 
-export const deleteUser = async (req, res, next) => {
+export const userDelete = async (req, res, next) => {
   const { id } = req.query;
   const { adminId } = req.params;
   try {
@@ -248,9 +256,7 @@ export const deleteUser = async (req, res, next) => {
       _id: adminId,
     });
     if (admin.isAdmin === false) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
+      error(401, "Unauthorized");
     }
     const user = await User.findById(id);
     if (!user) {
@@ -262,20 +268,19 @@ export const deleteUser = async (req, res, next) => {
     // Todo check hospital admins if user is an admin
     let isAdmin;
     const hospital = await Hospital.findOne({ name: admin.hospital });
-    const checkAdmin = (arr) => {
-      for (let x in arr) {
-        return x._id === admin._id;
-      }
+    const checkAdmin = (id) => {
+      return id === admin._id;
     };
-    isAdmin = hospital.admins;
+    isAdmin = hospital.admin;
     if (checkAdmin(isAdmin)) {
-      hospital.admins.pull(admin._id);
+      hospital.admin = null;
       hospital.save();
       user.remove();
-      res.status(200).json({ message: "Success" });
+      res.status(200).json({ msg: "OK" });
+      return;
     }
-    user.remove();
-    return res.status(200).json({ message: "Success" });
+    await user.remove();
+    res.status(200).json({ msg: "OK" });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -299,14 +304,15 @@ export const admin = async (req, res, next) => {
         const admin = await Admin.findOne({ email: email });
         if (admin) {
           return res.status(302).json({
-            message: "User is already an admin",
+            msg: "User already an admin",
           });
         }
         const hospId = await Hospital.findById(user.hospital);
         if (!hospId) {
-          return res.status(404).json({
-            message: "Hospital does not exist",
+          res.status(404).json({
+            msg: "Hospital does not exist",
           });
+          return;
         }
         // Todo attach user payload to admin model
         const newAdmin = new Admin({
@@ -322,16 +328,17 @@ export const admin = async (req, res, next) => {
         user.isAdmin = true;
         const [a, u] = await Promise.all([newAdmin.save(), user.save()]);
         if (a && u) {
-          return res.status(200).json({
+          res.status(200).json({
             message: "Successful",
           });
+          return;
         }
-        return res.status(200).json({
-          message: "Unsuccessful",
+        res.status(200).json({
+          msg: "Unsuccessful",
         });
       } else {
-        return res.status(302).json({
-          message: "User is not entitled",
+        res.status(302).json({
+          msg: "User is not entitled",
         });
       }
     }
@@ -343,39 +350,47 @@ export const admin = async (req, res, next) => {
   }
 };
 
-export const password_reset = async (req, res, next) => {
-  const { oldPass, newPass, tel, email } = req.body;
+export const userForgetPassword = async (req, res, next) => {
+  const { newPass, tel, email } = req.body;
   const errors = validationResult(req);
   try {
     if (!errors.isEmpty()) {
-      return res.status(406).json({
-        message: errors.mapped(),
+      res.status(406).json({
+        error: errors.mapped(),
       });
     }
     const user = await User.findOne({ tel: tel }).or([{ email: email }]);
     if (!user) {
-      res.status(404).json({
-        message: `${email} is not a registered address`,
-      });
+      error(404, "User not found");
     }
-    const isEqual = await bcrypt.compare(newPass, user.password);
-    console.log(isEqual);
-    if (isEqual) {
-      return res.status(406).json({
-        message: "new password must not be the same with the old password",
-      });
+    if (email !== user.email) {
+      error(404, `${email} is not a registered email address`);
+    }
+    if (user.isVerified == false) {
+      error(404, `${email} is not verified`);
+    }
+    const isMatch = await bcrypt.compare(newPass, user.password);
+    if (isMatch) {
+      error(406, "new password must not be the same with the old password");
     }
     const hashPassword = await bcrypt.hash(newPass, 10);
     user.password = hashPassword;
-    const [u] = await Promise.all([user.save()]);
-    if (u) {
-      return res.status(200).json({
-        message: "Ok",
+    const [isSaved] = await Promise.all([user.save()]);
+    if (isSaved) {
+      const payload = {
+        _id: user.id,
+        isActive: false,
+      };
+      const accessToken = signAccessToken(user.id, payload);
+      const refreshToken = signRefreshToken(user.id, payload);
+      const verifyToken = verifyAccessToken(accessToken);
+      res.status(200).json({
+        msg: "OK",
+        id_token: accessToken,
+        expires_in: verifyToken.exp,
+        refresh_token: refreshToken,
       });
     }
-    return res.status(406).json({
-      message: "Unsuccessful",
-    });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -384,47 +399,44 @@ export const password_reset = async (req, res, next) => {
   }
 };
 
-export const change_password = async (req, res, next) => {
+export const userResetPassword = async (req, res, next) => {
   const { userId } = req;
-  const { newPass } = req.body;
-  if (!userId) {
-    return res.status(407).json({
-      message: "Not authenticated",
+  const { newPassword } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(406).json({
+      error: errors.mapped(),
     });
   }
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
+      res.status(404).json({
+        msg: "User not found",
       });
     }
-    const isEqual = await bcrypt.compare(newPass, user.password);
+    const isEqual = await bcrypt.compare(newPassword, user.password);
     if (isEqual) {
-      return res.status(406).json({
-        message: "new password must not be the same with the old password",
+      res.status(406).json({
+        msg: "new password must not be the same with previous password",
       });
     }
-    const hashPassword = await bcrypt.hash(newPass, 10);
+    const hashPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashPassword;
-    const [u] = await Promise.all([user.save()]);
-    if (u) {
-      return res.status(200).json({
-        message: "Ok",
-      });
-    }
-    return res.status(406).json({
-      message: "Unsuccessful",
+    user.save();
+    res.status(200).json({
+      msg: "OK",
     });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
+      error.massage = "change cannot be applied";
+      next(error);
     }
-    next(error);
   }
 };
 
-export const logout = async (req, res, next) => {
+export const userLogout = async (req, res, next) => {
   const { userId } = req;
   try {
     const user = await User.findById(userId);
@@ -434,7 +446,7 @@ export const logout = async (req, res, next) => {
     user.isActive = false;
     user.save();
     res.status(200).json({
-      message: "Successful!",
+      msg: "OK",
     });
   } catch (error) {
     if (!error.status) {

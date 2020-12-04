@@ -1,5 +1,5 @@
 import express from "express";
-import { reg_hospital } from "../controller/hospital/hospital";
+import { reg_hospital } from "../hospital/hospital";
 
 const router = express.Router();
 

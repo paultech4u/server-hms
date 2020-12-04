@@ -1,26 +1,21 @@
 import dotenv from "dotenv";
+import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
 import DATABASE from "./src/database/db";
-import USER_ROUTE from "./src/routes/user";
-import DEPARTMENT_ROUTE from "./src/routes/departments";
-import HOSPITAL_ROUTE from "./src/routes/hospital";
+import USER_ROUTE from "./src/controller/users/userAPIs";
+import DEPARTMENT_ROUTE from "./src/controller/departments/departmentAPIs";
+import HOSPITAL_ROUTE from "./src/controller/hospital/hopsitalAPIs";
 
 const app = express();
 
-dotenv.config({ path: "./.env" });
+dotenv.config();
 
-const  PORT  = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(bodyParser.json());
 
-// TODO cors configuration.
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, HEAD");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+app.use(cors());
 
 app.use(USER_ROUTE);
 app.use(DEPARTMENT_ROUTE);

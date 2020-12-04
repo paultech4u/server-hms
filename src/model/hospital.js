@@ -30,7 +30,7 @@ const HOSPITAL_SCHEMA = new Schema(
     admin: {
       type: Schema.Types.ObjectId,
       ref: "Admins",
-      required: true,
+      required: false,
     },
   },
   { timestamps: true, collection: "hospitals", autoCreate: true }
