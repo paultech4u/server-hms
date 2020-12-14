@@ -19,6 +19,6 @@ export const isAuth = (req, res, next) => {
   if (!decodedToken) {
     error(401, "Token invalid");
   }
-  req.userId = decodedToken._id;
+  req.userID = decodedToken._id;
   next();
 };

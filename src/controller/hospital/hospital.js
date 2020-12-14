@@ -1,31 +1,45 @@
 import { Admin } from "../../model/admin";
+import { validationResult } from "express-validator";
 import { Hospital } from "../../model/hospital";
-import { error } from "../../util/error";
+import { ErrorException } from "../../util/error";
 
-export const reg_hospital = async (req, res, next) => {
-  const { name, email, state, address, id } = req.body;
+/**
+ * @typedef {Request} req
+ * @typedef {Response} res
+ * @param  {object} req  request object
+ * @param  {object} res  response object
+ * @param  {Function} next next middleware function
+ */
+export const HospitalRegistration = async function (req, res, next) {
+  const { name, email, state, address, zip_code } = req.body;
+  const { userID } = req;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(406).json({
+      error: errors.mapped(),
+    });
+  }
   try {
-    const admin = await Admin.findById(id);
-    if (admin.isSuper === false) {
-      error(401, "Unauthorized");
+    const admin = await Admin.findById(userID);
+    if (admin.isAdmin === false) {
+      ErrorException(401, "Unauthorized");
     }
     const hospital = await Hospital.findOne({ name: name });
     if (hospital) {
-      return res.status(302).json({
-        messege: "Hopital exist",
-      });
+      ErrorException(302, "Hopital exist");
     }
     const newHospital = new Hospital({
       name,
       email,
       state,
       address,
+      zip_code,
     });
-    newHospital.creator = admin;
+    newHospital.admin = admin._id;
     newHospital.save();
-    return res.status(201).json({
+    res.status(201).json({
       messege: "Created",
-      newHospital: newHospital,
+      Hospital: newHospital,
     });
   } catch (error) {
     if (!error.status) {

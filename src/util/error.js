@@ -1,14 +1,12 @@
 /**
- * @typedef {(string|number)} NumberLike
- * @param  {NumberLike} status
- * @param  {String} msg
- * @author Paulsimon
+ * @typedef {Number} status
+ * @param  {number} status
+ * @param  {string} msg
+ * 
+ * @author Paultech4u
  */
-
-function error(status, msg) {
+export function ErrorException(status, msg) {
   const error = new Error(msg);
   error.status = status;
   throw error;
 }
-
-export default error;

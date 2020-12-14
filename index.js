@@ -1,8 +1,9 @@
-import dotenv from "dotenv";
 import cors from "cors";
+import dotenv from "dotenv";
 import express from "express";
 import bodyParser from "body-parser";
-import DATABASE from "./src/database/db";
+import { DATABASE } from "./src/database/db";
+
 import USER_ROUTE from "./src/controller/users/userAPIs";
 import DEPARTMENT_ROUTE from "./src/controller/departments/departmentAPIs";
 import HOSPITAL_ROUTE from "./src/controller/hospital/hopsitalAPIs";
@@ -13,6 +14,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 4000;
 
+
 app.use(bodyParser.json());
 
 app.use(cors());
@@ -21,13 +23,20 @@ app.use(USER_ROUTE);
 app.use(DEPARTMENT_ROUTE);
 app.use(HOSPITAL_ROUTE);
 
+// Error handler
 app.use((error, req, res, next) => {
   const status = error.status || 500;
   const message = error.message;
-  res.status(status).json({ message: message });
+  res.status(status);
+  res.send({
+    error: {
+      status: status,
+      message: message,
+    },
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 server ready at port ${PORT}`);
+  console.log(`🚀 server ready at port ${PORT || 500}`);
   DATABASE;
 });

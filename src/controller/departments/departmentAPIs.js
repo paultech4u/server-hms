@@ -7,7 +7,7 @@ import {
   get_departments,
   get_department,
 } from "../departments/department";
-import { isAuth } from "../../security/auth/isAuth";
+import { isAuth } from "../../security/auth/authMiddleware";
 const router = express.Router();
 
 router.post(

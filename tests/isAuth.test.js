@@ -1,6 +1,6 @@
 jest.mock("jsonwebtoken");
 import jwt from "jsonwebtoken";
-import { isAuth } from "../src/security/auth/isAuth";
+import { isAuth } from "../src/security/auth/authMiddleware";
 
 describe("Authentication middleware", () => {
   test("should throw an error if the authorization header returns null", () => {
@@ -9,7 +9,7 @@ describe("Authentication middleware", () => {
         return null;
       },
     };
-    expect(isAuth.bind(this, req, {}, () => {})).toThrow("Not authenticated");
+    expect(isAuth.bind(this, req, {}, () => {})).toThrow();
   });
   test("should throw an error if the authorization header is only one string", () => {
     const req = {

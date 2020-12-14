@@ -20,20 +20,21 @@ const HOSPITAL_SCHEMA = new Schema(
       type: String,
       required: false,
     },
-    departments: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Department",
-        required: false,
-      },
-    ],
+    zip_code: {
+      type: Number,
+      required: false,
+    },
     admin: {
       type: Schema.Types.ObjectId,
       ref: "Admins",
       required: false,
     },
+    creation: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  { timestamps: true, collection: "hospitals", autoCreate: true }
+  { timestamps: true }
 );
 
-export const Hospital = model("Hospital", HOSPITAL_SCHEMA);
+export const Hospital = model("Hospitals", HOSPITAL_SCHEMA);

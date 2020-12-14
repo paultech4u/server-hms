@@ -4,21 +4,10 @@ const { Schema } = mongoose;
 
 const ADMIN_SCHEMA = new Schema(
   {
-    email: {
-      type: String,
+    _id: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    password: {
-      type: String || Number,
-      required: true,
-    },
-    imageUrl: {
-      type: String,
-      required: false,
     },
     hospital: {
       type: Schema.Types.ObjectId,
@@ -33,7 +22,7 @@ const ADMIN_SCHEMA = new Schema(
       default: true,
     },
   },
-  { timestamps: true, collection: "admins", autoCreate: true }
+  { timestamps: true, _id: false }
 );
 
-export const Admin = mongoose.model("Admin", ADMIN_SCHEMA);
+export const Admin = mongoose.model("Admins", ADMIN_SCHEMA);

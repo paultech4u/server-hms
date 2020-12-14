@@ -1,22 +1,24 @@
 import express from "express";
-import { body, check } from "express-validator";
 import {
-  admin,
-  userLogin,
-  userDelete,
-  userSignup,
-  userLogout,
-  refreshToken,
-  userGetProfile,
-  userDeactivate,
-  userVerification,
-  userResetPassword,
-  userForgetPassword,
+  UserLogin,
+  UserSignup,
+  UserLogout,
+  UserDelete,
+  RefreshToken,
+  UserGetProfile,
+  UserResetPassword,
+  UserForgetPassword,
+  UserEmailVerification,
+  UserAccountDeactivattion,
 } from "./user";
-import { isAuth } from "../../security/auth/isAuth";
+import { UploadProfilePicture } from "./userUpload";
+import { MakeUserAdmin } from "./userAdmin";
+import { body, check } from "express-validator";
+import { isAuth } from "../../security/auth/authMiddleware";
+import { uploads } from "../../service/multer";
 const router = express.Router();
 
-router.put(
+router.post(
   "/user/signup",
   [
     body("email")
@@ -31,47 +33,43 @@ router.put(
       .not()
       .isEmpty()
       .trim(),
-    body([
-      "role",
-      "firstname",
-      "middlename",
-      "surname",
-      "username",
-      "department",
-    ])
+    body(["role", "firstname", "surname", "username", "department"])
       .not()
       .isEmpty()
       .trim()
       .withMessage("must contain a character"),
   ],
-  userSignup
+
+  UserSignup
 );
 
-router.get("/user/confirm-email", userVerification);
+router.get("/user/confirm-email", UserEmailVerification);
 
 router.post(
   "/user/login",
   check("email").not().isEmpty().normalizeEmail().trim(),
-  userLogin
+  UserLogin
 );
 
-router.get("/user/profile", isAuth, userGetProfile);
+router.get("/user/get-profile", isAuth, UserGetProfile);
 
-router.post("/:token", refreshToken);
+router.post("/refresh-token", RefreshToken);
 
-router.put("/user/deactivate", isAuth, userDeactivate);
+router.put("/user/deactivate", isAuth, UserAccountDeactivattion);
 
-router.post("/admin", admin);
+router.post("/admin", MakeUserAdmin);
+
 router.put(
   "/user/reset-password",
   [body("password").not().isEmpty().isLength({ max: 30, min: 8 }).trim()],
   isAuth,
-  userResetPassword
+  UserResetPassword
 );
+
 router.put(
   "/forget-password",
   [
-    body(["newPass", "tel", "email"])
+    body(["newPassword", "tel", "email"])
       .not()
       .isEmpty()
       .trim()
@@ -81,11 +79,18 @@ router.put(
       .isMobilePhone()
       .withMessage("must be a valid mobile number"),
   ],
-  userForgetPassword
+  UserForgetPassword
 );
 
-router.delete("/user/delete/:adminId", userDelete);
+router.put(
+  "/user/profile",
+  uploads.single("avatar"),
+  isAuth,
+  UploadProfilePicture
+);
 
-router.post("/user/logout", isAuth, userLogout);
+router.delete("/user/delete/:adminId", isAuth, UserDelete);
+
+router.post("/user/logout", isAuth, UserLogout);
 
 export default router;

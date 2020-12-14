@@ -3,16 +3,23 @@ import sg from "@sendgrid/mail";
 const { SG_API_KEY } = process.env;
 
 sg.setApiKey(SG_API_KEY);
-export const SendMail = (to, uri, token, name) => {
-  const msg = {
+
+/**
+ * @param  {URL} uri
+ * @param  {string} token access token
+ * @param  {string} to receiving user email
+ * @param  {string} name receiving user name
+ */
+export const VerificationMail = (to, uri, token, name) => {
+  const msgTemplate = {
     to: to,
-    from: "noreply@gmail.com",
+    from: "speak2donsimon@gmail.com",
     subject: "Hospital - Verify your account",
     templateId: "d-25f3d7c3fe2343109f0b3269b74b0bbd",
     dynamicTemplateData: {
       name: name,
-      label: `<a style="text-decoration:none; color: white; cursor: pointer;display:inline-block" href="http://${uri}:4000/user/confirm-email?token=${token}">Verify account</a>`,
+      uri: `http://${uri}:4000/user/confirm-email?token=${token}`,
     },
   };
-  sg.send(msg);
+  sg.send(msgTemplate);
 };

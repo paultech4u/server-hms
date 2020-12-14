@@ -10,19 +10,13 @@ const USER = new Schema(
       type: String,
       required: true,
     },
-    name: {
-      first: {
-        type: String,
-        required: true,
-      },
-      middle: {
-        type: String,
-        required: false,
-      },
-      sur: {
-        type: String,
-        required: true,
-      },
+    firstname: {
+      type: String,
+      required: true,
+    },
+    surname: {
+      type: String,
+      required: true,
     },
     username: {
       type: String,
@@ -69,7 +63,7 @@ const USER = new Schema(
       default: false,
     },
   },
-  { timestamps: true, collection: "users" }
+  { timestamps: true }
 );
 
-export const User = mongoose.model("User", USER);
+export const User = mongoose.model("Users", USER);

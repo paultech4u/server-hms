@@ -14,7 +14,7 @@ const DEPARTMENT_SCHEMA = new Schema(
     hospital: {
       type: Schema.Types.ObjectId,
       ref: "Hospital",
-      required: false,
+      required: true,
     },
     creator: {
       type: Schema.Types.ObjectId,
@@ -26,7 +26,7 @@ const DEPARTMENT_SCHEMA = new Schema(
       default: false,
     },
   },
-  { timestamps: true, autoCreate: true }
+  { timestamps: true }
 );
 
-export const Department = mongoose.model("Department", DEPARTMENT_SCHEMA);
+export const Department = mongoose.model("Departments", DEPARTMENT_SCHEMA);
