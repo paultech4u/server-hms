@@ -100,7 +100,7 @@ export const UserEmailVerification = async function (req, res, next) {
   // TODO get id token from the http query string.
   const { token } = req.query;
   if (!token) {
-    ErrorException(404, "Token ID not found");
+    ErrorException(404, "ID_Token not found");
   }
   let decodedToken;
   try {

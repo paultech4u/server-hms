@@ -1,11 +1,12 @@
 import fs from "fs";
 import { User } from "../../model/user";
-import { UPLOADS } from "../../service/cloudinary";
+import { SaveToClouds } from "../../service/cloudinary";
 
 export const UploadProfilePicture = async function (req, res, next) {
   const imageUrl = req.file;
   const { userID } = req;
   try {
+
     // TODO check if user exist
     const user = await User.findById(userID);
     if (!user) {
@@ -13,18 +14,21 @@ export const UploadProfilePicture = async function (req, res, next) {
     }
 
     // cloudinary file uploader api
-    const uploader = async function (path) {
-      const result = await UPLOADS(path, "Images");
+    const uploadImageToCloud = async function (path) {
+      const result = await SaveToClouds(path, "Images");
       return result;
     };
-    const { result } = await uploader(imageUrl.path);
+    const { result } = await uploadImageToCloud(imageUrl.path);
     // Remove saved image URL from uploads
     fs.unlinkSync(imageUrl.path);
-    user.imageUrl = result.url; // TODO assigned cloudinary url to user imageUrl path
+    
+    // TODO assigned cloudinary url to user imageUrl path
+    user.imageUrl = result.url; 
+
     const [u] = await Promise.all([user.save()]);
     if (!u) {
       ErrorException(404, "Upload not successful");
-    } 
+    }
     res.status(200).json({
       message: "Successfully uploaded profile picture",
     });

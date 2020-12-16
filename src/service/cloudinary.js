@@ -12,7 +12,7 @@ cloudinary.v2.config({
   api_secret: CLOUDINARY_API_SECRET,
 });
 
-export const UPLOADS = function (file, folder) {
+export const SaveToClouds = function (file, folder) {
   return new Promise((resolve, reject) => {
     cloudinary.v2.uploader.upload(file, { folder: folder }, (error, result) => {
       resolve({ result: result });
@@ -20,3 +20,5 @@ export const UPLOADS = function (file, folder) {
     });
   });
 };
+
+export const GetCloudFile = function (file) {};

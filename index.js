@@ -14,7 +14,6 @@ dotenv.config();
 
 const PORT = process.env.PORT || 4000;
 
-
 app.use(bodyParser.json());
 
 app.use(cors());
@@ -23,7 +22,7 @@ app.use(USER_ROUTE);
 app.use(DEPARTMENT_ROUTE);
 app.use(HOSPITAL_ROUTE);
 
-// Error handler
+// Error expection handler
 app.use((error, req, res, next) => {
   const status = error.status || 500;
   const message = error.message;
@@ -37,6 +36,6 @@ app.use((error, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 server ready at port ${PORT || 500}`);
+  console.log(`🚀 server ready at port ${PORT}`);
   DATABASE;
 });
