@@ -1,4 +1,4 @@
-import cloudinary from "cloudinary";
+import cloudinary from 'cloudinary';
 
 const {
   CLOUDINARY_NAME,
@@ -14,10 +14,14 @@ cloudinary.v2.config({
 
 export const SaveToClouds = function (file, folder) {
   return new Promise((resolve, reject) => {
-    cloudinary.v2.uploader.upload(file, { folder: folder }, (error, result) => {
-      resolve({ result: result });
-      reject(error);
-    });
+    cloudinary.v2.uploader.upload(
+      file,
+      { folder: folder, tags: 'avatar' },
+      (error, result) => {
+        resolve({ result: result });
+        reject(error);
+      }
+    );
   });
 };
 

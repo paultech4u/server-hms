@@ -1,21 +1,27 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { User } from "../../model/user";
-import { Admin } from "../../model/admin";
-import { Response, Request } from "express";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { User } from '../../model/user';
+import { Admin } from '../../model/admin';
+import { Response, Request } from 'express';
 import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
-} from "./userService";
-import { Hospital } from "../../model/hospital";
-import { ErrorException } from "../../util/error";
-import { Department } from "../../model/department";
-import { validationResult } from "express-validator";
-import { VerificationMail } from "../../service/sendgrid";
+} from './userService';
+import { Hospital } from '../../model/hospital';
+import { ErrorException } from '../../util/error';
+import { activationEmail } from './userService';
+import { Department } from '../../model/department';
+import { validationResult } from 'express-validator';
+import { VerificationMail } from '../../service/sendgrid';
 
 const { JWT_SECRET_KEY } = process.env;
+
+/**
+ * @global
+ * @author  Paulsimon Edache
+ */
 
 /**
  * @typedef {Request} req
@@ -26,16 +32,24 @@ const { JWT_SECRET_KEY } = process.env;
  */
 export const UserSignup = async function (req, res, next) {
   const {
-    firstname,
-    surname,
-    username,
-    email,
-    password,
-    tel,
-    hospital,
     role,
+    email,
+    hospital,
+    surname,
+    firstname,
+    username,
+    password,
     department,
+    phone_number,
   } = req.body;
+
+  // Express validator errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(406).json({
+      error: errors.mapped(),
+    });
+  }
 
   try {
     // TODO check if department exists
@@ -45,13 +59,13 @@ export const UserSignup = async function (req, res, next) {
       ErrorException(
         404,
         `${
-          !departments === false ? "Hospital not found" : "Department not found"
+          !departments === false ? 'Hospital not found' : 'Department not found'
         }`
       );
     }
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ username: username });
     if (user) {
-      ErrorException(302, "User exists");
+      ErrorException(302, 'User exists');
     }
     const hashPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
@@ -60,9 +74,8 @@ export const UserSignup = async function (req, res, next) {
       surname,
       username,
       password: hashPassword,
-      tel: tel,
+      tel: phone_number,
       role: role,
-      // imageUrl: imageUrl.path,
       hospital: hospitals._id,
       department: departments,
     });
@@ -72,12 +85,12 @@ export const UserSignup = async function (req, res, next) {
         _id: newUser._id,
       },
       JWT_SECRET_KEY,
-      { expiresIn: "1d" }
+      { expiresIn: '1d' }
     );
     // TODO send a comfirmation message
     VerificationMail(email, req.hostname, accessToken, firstname);
     res.status(200).json({
-      message: "Confirmation message sent",
+      message: 'Confirmation message sent',
     });
   } catch (error) {
     if (!error.status) {
@@ -100,27 +113,27 @@ export const UserEmailVerification = async function (req, res, next) {
   // TODO get id token from the http query string.
   const { token } = req.query;
   if (!token) {
-    ErrorException(404, "ID_Token not found");
+    ErrorException(404, 'ID_Token not found');
   }
   let decodedToken;
   try {
     // TODO verify id token.
     decodedToken = verifyAccessToken(token);
     if (!decodedToken) {
-      ErrorException(401, "Invalid token");
+      ErrorException(401, 'Invalid token');
     }
     const { _id } = decodedToken;
     const user = await User.findById({ _id: _id });
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
     user.isVerified = true;
     const [newUser] = await Promise.all([user.save()]);
     if (!newUser) {
-      ErrorException(401, "Email not verified");
+      ErrorException(401, 'Email not verified');
     }
     res.status(200).json({
-      message: "Email verified",
+      message: 'Email verified',
       payload: newUser,
     });
   } catch (error) {
@@ -140,20 +153,18 @@ export const UserEmailVerification = async function (req, res, next) {
  * @param  {Function} next next middleware function
  */
 export const UserLogin = async function (req, res, next) {
-  const { email, tel, password } = req.body;
+  const { username, password } = req.body;
   try {
-    const user = await User.findOne({
-      $or: [{ email: email }, { tel: tel }],
-    });
+    const user = await User.findOne({ username: username });
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
     if (user.isVerified === false) {
-      ErrorException(401, "Email not verified");
+      ErrorException(401, 'Email not verified');
     }
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      ErrorException(401, "Wrong password");
+      ErrorException(401, 'Wrong password');
     }
     const payload = {
       _id: user.id,
@@ -165,8 +176,9 @@ export const UserLogin = async function (req, res, next) {
     user.isActive = true;
     user.save();
     res.status(200).json({
-      message: "Ok",
+      message: 'Ok',
       email: user.email,
+      username: user.username,
       id: user._id,
       id_token: accessToken,
       expires_in: verifyToken.exp,
@@ -190,21 +202,21 @@ export const UserLogin = async function (req, res, next) {
 export const UserGetProfile = async function (req, res, next) {
   // TODO get a user profile payload from an authorization token
   // TODO if user is authenticated.
-  const { userID } = req;
+  const { id } = req.params;
   // TODO check if user exits
   try {
-    const user = await User.findOne({ _id: userID })
-      .populate("hospital", "name -_id")
-      .populate("department", "name -_id")
+    const user = await User.findOne({ _id: id })
+      .populate('hospital', 'name -_id')
+      .populate('department', 'name -_id')
       .exec();
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
-    res.status(200).json({ message: "OK", user: user });
+    res.status(200).json({ message: 'OK', user: user });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
-      error.message = "Unable to fetch profile";
+      error.message = 'Unable to fetch profile';
     }
     next(error);
   }
@@ -221,12 +233,12 @@ export const RefreshToken = async function (req, res, next) {
   const { token } = req.query;
   try {
     if (!token) {
-      ErrorException(401, "No refresh token");
+      ErrorException(401, 'No refresh token');
     }
     const userID = verifyRefreshToken(token);
     const user = await User.findById(userID);
     if (user.isActive !== true && user.isVerified !== true) {
-      res.status(401, "User not authenticated");
+      res.status(401, 'User not authenticated');
     }
     const payload = {
       _id: user.id,
@@ -236,7 +248,7 @@ export const RefreshToken = async function (req, res, next) {
     const refreshToken = signRefreshToken(userID, payload);
     const verifyToken = verifyAccessToken(accessToken);
     res.status(200).json({
-      message: "OK",
+      message: 'OK',
       user_id: user._id,
       expiresIn: verifyToken.exp,
       refresh_token: refreshToken,
@@ -258,18 +270,18 @@ export const RefreshToken = async function (req, res, next) {
  * @param  {object} res  response object
  * @param  {Function} next  next middleware function
  */
-export const UserAccountDeactivattion = async function (req, res, next) {
+export const UserAccountDeactivation = async function (req, res, next) {
   const { userID } = req.body;
   try {
     const user = await User.findById(userID);
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
     user.isActive = false;
     user.isVerified = false;
     user.save();
     res.status(200).json({
-      message: "User disabled",
+      message: 'User disabled',
     });
   } catch (error) {
     if (!error.status) {
@@ -277,6 +289,32 @@ export const UserAccountDeactivattion = async function (req, res, next) {
     }
     next(error);
   }
+};
+
+/**
+ * @typedef {Request} req
+ * @typedef {Response} res
+ * @param  {object} req request object
+ * @param  {object} res response object
+ * @param  {Function} next next middleware function
+ */
+export const UserAccountActivation = async function (req, res, next) {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      ErrorException(404, 'User not found');
+    }
+    if (user.isVerified === true) {
+      ErrorException(422, 'Account already verified');
+    }
+    user.isVerified = true;
+    user.save();
+    activationEmail(user.email, req.host);
+    res.status(200).json({
+      message: 'OK',
+    });
+  } catch (error) {}
 };
 
 /**
@@ -295,14 +333,14 @@ export const UserDelete = async function (req, res, next) {
       _id: adminID,
     });
     if (admin.isAdmin === false) {
-      ErrorException(401, "Unauthorized");
+      ErrorException(401, 'Unauthorized');
     }
     const user = await User.findById(userID);
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
     if (adminID === user._id) {
-      ErrorException(403, "Forbidden");
+      ErrorException(403, 'Forbidden');
     }
     // Todo check hospital admins if user is an admin
     let isAdmin;
@@ -315,11 +353,11 @@ export const UserDelete = async function (req, res, next) {
       hospital.admin = null;
       hospital.save();
       user.remove();
-      res.status(200).json({ message: "OK" });
+      res.status(200).json({ message: 'OK' });
       return;
     }
     await user.remove();
-    res.status(200).json({ message: "OK" });
+    res.status(200).json({ message: 'OK' });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -348,7 +386,7 @@ export const UserForgetPassword = async function (req, res, next) {
       { email: email },
     ]);
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
     if (email !== user.email) {
       ErrorException(404, `${email} is not a registered email address`);
@@ -360,7 +398,7 @@ export const UserForgetPassword = async function (req, res, next) {
     if (isMatch) {
       ErrorException(
         406,
-        "new password must not be the same with the old password"
+        'new password must not be the same with the old password'
       );
     }
     const hashPassword = await bcrypt.hash(newPassword, 10);
@@ -375,7 +413,7 @@ export const UserForgetPassword = async function (req, res, next) {
       const refreshToken = signRefreshToken(user.id, payload);
       const verifyToken = verifyAccessToken(accessToken);
       res.status(200).json({
-        message: "OK",
+        message: 'OK',
         id_token: accessToken,
         expires_in: verifyToken.exp,
         refresh_token: refreshToken,
@@ -408,25 +446,25 @@ export const UserResetPassword = async function (req, res, next) {
   try {
     const user = await User.findById(userID);
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
     const isEqual = await bcrypt.compare(newPassword, user.password);
     if (isEqual) {
       ErrorException(
         406,
-        "new password must not be the same with previous password"
+        'new password must not be the same with previous password'
       );
     }
     const hashPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashPassword;
     user.save();
     res.status(200).json({
-      message: "OK",
+      message: 'OK',
     });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
-      error.massage = "change cannot be applied";
+      error.massage = 'change cannot be applied';
       next(error);
     }
   }
@@ -444,12 +482,12 @@ export const UserLogout = async function (req, res, next) {
   try {
     const user = await User.findById(userID);
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
     user.isActive = false;
     user.save();
     res.status(200).json({
-      message: "OK",
+      message: 'OK',
     });
   } catch (error) {
     if (!error.status) {

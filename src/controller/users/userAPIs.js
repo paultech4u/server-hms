@@ -9,7 +9,7 @@ import {
   UserResetPassword,
   UserForgetPassword,
   UserEmailVerification,
-  UserAccountDeactivattion,
+  UserAccountDeactivation,
 } from "./user";
 import { UploadProfilePicture } from "./userUpload";
 import { MakeUserAdmin } from "./userAdmin";
@@ -72,7 +72,7 @@ router.post(
  * @access Private
  * @endpoints /api/get-profile
  */
-router.get("/user/get-profile", isAuth, UserGetProfile);
+router.get("/user/get-profile/:id", isAuth, UserGetProfile);
 
 /**
  * @method GET
@@ -87,7 +87,7 @@ router.post("/refresh-token", RefreshToken);
  * @access Private
  * @endpoints /api/deactivate
  */
-router.put("/user/deactivate", isAuth, UserAccountDeactivattion);
+router.put("/user/deactivate", isAuth, UserAccountDeactivation);
 
 /**
  * @private

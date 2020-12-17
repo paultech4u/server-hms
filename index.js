@@ -1,18 +1,19 @@
-import cors from "cors";
-import dotenv from "dotenv";
-import express from "express";
-import bodyParser from "body-parser";
-import { DATABASE } from "./src/database/db";
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import bodyParser from 'body-parser';
+// import logger from 'loglevel';
+import { DATABASE } from './src/database/db';
 
-import USER_ROUTE from "./src/controller/users/userAPIs";
-import DEPARTMENT_ROUTE from "./src/controller/departments/departmentAPIs";
-import HOSPITAL_ROUTE from "./src/controller/hospital/hopsitalAPIs";
+import USER_ROUTE from './src/controller/users/userAPIs';
+import DEPARTMENT_ROUTE from './src/controller/departments/departmentAPIs';
+import HOSPITAL_ROUTE from './src/controller/hospital/hopsitalAPIs';
 
 const app = express();
 
 dotenv.config();
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 
@@ -36,6 +37,6 @@ app.use((error, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 server ready at port ${PORT}`);
+  console.log(`🚀 Listening on port ${PORT}`);
   DATABASE;
 });

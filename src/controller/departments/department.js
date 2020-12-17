@@ -1,77 +1,70 @@
 // const express  = require("express");
-import { validationResult } from "express-validator";
-import { Department } from "../../model/department";
-import { User } from "../../model/user";
-import { Admin } from "../../model/admin";
-import { Hospital } from "../../model/hospital";
-import { error } from "../../util/error";
+import { validationResult } from 'express-validator';
+import { Department } from '../../model/department';
+import { Hospital } from '../../model/hospital';
+import { ErrorException } from '../../util/error';
 
-export const create_department = async (req, res, next) => {
-  const { name, description, id, hospital } = req.body;
+/**
+ * @typedef {Request} req
+ * @typedef {Response} res
+ * @param  {object} req request object
+ * @param  {object} res  response object
+ * @param  {Function} next next middleware function
+ */
+export const CreateDepartment = async function (req, res, next) {
+  const { name, description, hospital } = req.body;
+  // Get admin id from auth token
+  const { id } = req;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(412).json({
+      message: errors.mapped(),
+    });
+  }
   try {
-    // Todo Two way steps of creating departments
-    // Todo if user is an admin
-    // Todo if admin is super
-    // const user = await User.findById(id);
-    const admin = await Admin.findById(id);
-    if (!admin) {
-      return res.status(404).json({
-        message: "Not found",
-      });
+    // TODO extract admin id from hospital
+    const hospitals = await Hospital.findOne({ name: hospital });
+    if (!hospitals) {
+      ErrorException(404, 'Hospital not found');
     }
-    if (admin) {
-      if (admin.isAdmin !== true) {
-        return res.status(401).json({
-          message: "Unauthorized",
-        });
-      }
+    if (hospitals.admin !== id) {
+      ErrorException(401, 'Unauthorized');
     }
-
     const department = await Department.findOne({
       name: name,
     });
     // TODO check for an exiting department
     if (department) {
-      return res.status(302).json({
-        message: "Department exits",
-      });
-    }
-    const hospitals = await Hospital.find().select("departments");
-    if (!hospitals) {
-      error(404, "No hospitals");
+      ErrorException(302, 'Department exists');
     }
 
-    const check = () => {
-      for (let x of hospitals) {
-        const y = x.departments;
-        if (y.lenght === -1) {
-          return false;
-        }
-        for (let props of y) {
-          if (department && props === department._id) {
-            return false;
-          }
-          return true;
-        }
-      }
-    };
-    if (check() === false) {
-      error(406, "Department exist");
-    }
-    const hospitalName = await Hospital.findOne({ name: hospital });
+    // const check = () => {
+    //   for (let x of hospitals) {
+    //     const y = x.departments;
+    //     if (y.lenght === -1) {
+    //       return false;
+    //     }
+    //     for (let props of y) {
+    //       if (department && props === department._id) {
+    //         return false;
+    //       }
+    //       return true;
+    //     }
+    //   }
+    // };
+    // if (check() === false) {
+    //   error(406, 'Department exist');
+    // }
     const newDepartment = new Department({
       name: name,
       description: description,
-      isActive: true,
+      creator: hospitals.admin,
+      hospital: hospitals._id,
     });
     // TODO save to database
-    newDepartment.creator = admin;
-    newDepartment.hospital = hospitalName.name;
     newDepartment.save();
-    hospitalName.departments.push(newDepartment);
-    hospitalName.save();
-    return res.status(201).json({
-      message: "Created!",
+    res.status(201).json({
+      message: 'Created!',
       newDepartment: newDepartment,
     });
   } catch (error) {
@@ -82,29 +75,38 @@ export const create_department = async (req, res, next) => {
   }
 };
 
-export const get_departments = async (req, res, next) => {
+/**
+ * @typedef {Request} req
+ * @typedef {Response} res
+ * @param  {object} req request object
+ * @param  {object} res  response object
+ * @param  {Function} next next middleware function
+ */
+export const GetDepartments = async function (req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    error(400, errors.msg);
+    res.status(406).json({
+      error: errors.mapped(),
+    });
   }
   const perPage = 5;
   const currentPage = 1;
   try {
     // TODO get all document in the department collection
-    const department = await Department.find()
+    const departments = await Department.find()
       .skip((currentPage - 1) * perPage)
       .limit(perPage)
       .orFail(() => {
         // TODO throw error if department is not available
-        error(204, "No departments");
+        ErrorException(404, 'Departments not found');
       })
-      .populate("hospital", "name admins state creator -_id departments");
+      .populate('hospital', 'name admins state creator -_id departments');
     // TODO number of available departments
     const totalDepartments = await Department.find().countDocuments();
 
     res.status(200).json({
-      message: "Fetched departments successful!",
-      departments: department,
+      message: 'Fetched departments successful!',
+      departments: departments,
       totalDepartments: totalDepartments,
     });
   } catch (error) {
@@ -115,20 +117,29 @@ export const get_departments = async (req, res, next) => {
   }
 };
 
-export const get_department = async (req, res, next) => {
-  // TODO get a single department
+/**
+ * @typedef {Request} req
+ * @typedef {Response} res
+ * @param  {object} req request object
+ * @param  {object} res  response object
+ * @param  {Function} next next middleware function
+ */
+// TODO get a single department
+export const GetDepartment = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    error(400, errors.msg);
+    res.status(406).json({
+      error: errors.mapped(),
+    });
   }
   const { id } = req.params;
   const department = await Department.findById(id);
   try {
     if (!department) {
-      error(404, "Department not found");
+      ErrorException(404, 'Department not found');
     }
     res.status(200).json({
-      message: "Fetched department successful!",
+      message: 'Fetched department successful!',
       department: department,
     });
   } catch (error) {
@@ -139,8 +150,20 @@ export const get_department = async (req, res, next) => {
   }
 };
 
-export const edit_department = async (req, res, next) => {
-  // TODO check if department exists
+/**
+ * @typedef {Request} req
+ * @typedef {Response} res
+ * @param  {object} req request object
+ * @param  {object} res  response object
+ * @param  {Function} next next middleware function
+ */
+export const EditDepartment = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(406).json({
+      error: errors.mapped(),
+    });
+  } // TODO check if department exists
   // TODO send a res if department exist
   const { id } = req.params; // department id
   const { name, description } = req.body;
@@ -161,7 +184,7 @@ export const edit_department = async (req, res, next) => {
   try {
     if (!department) {
       res.status(404).json({
-        message: "Department not found",
+        message: 'Department not found',
       });
     }
     res.status(200).json({
@@ -175,19 +198,17 @@ export const edit_department = async (req, res, next) => {
   }
 };
 
-export const change_user_department = async (req, res, next) => {};
-
-export const delete_department = async (req, res, next) => {
+export const DeleteDepartment = async (req, res, next) => {
   const { id } = req.params;
   const department = await Department.findByIdAndDelete({ _id: id });
   try {
     if (!department) {
       res.status(404).json({
-        message: "DEPARTMENT_NOT_FOUND",
+        message: 'DEPARTMENT_NOT_FOUND',
       });
     }
     res.status(200).json({
-      message: "Deleted",
+      message: 'Deleted',
     });
   } catch (error) {
     if (!error.status) {

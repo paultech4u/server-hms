@@ -1,6 +1,8 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config({ path: "./.env" });
+import dotenv from 'dotenv';
+// import logger from 'loglevel';
+import mongoose from 'mongoose';
+
+dotenv.config({ path: './.env' });
 
 const { DB_HOST } = process.env;
 
@@ -10,7 +12,7 @@ export const DATABASE = mongoose
     useUnifiedTopology: true,
   })
   .then((result) => {
-    console.log(`🚀 database ready`);
+    console.log(`🚀 Database ready`);
   })
   .catch((error) => {
     console.log(error);

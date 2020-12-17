@@ -1,30 +1,56 @@
-import express from "express";
-import { body, check } from "express-validator";
+import express from 'express';
+import { body } from 'express-validator';
 import {
-  delete_department,
-  edit_department,
-  create_department,
-  get_departments,
-  get_department,
-} from "../departments/department";
-import { isAuth } from "../../security/auth/authMiddleware";
+  GetDepartment,
+  EditDepartment,
+  GetDepartments,
+  DeleteDepartment,
+  CreateDepartment,
+} from '../departments/department';
+import { isAuth } from '../../security/auth/authMiddleware';
 const router = express.Router();
 
+/**
+ * @method POST
+ * @access Private
+ * @endpoints /api/department/create-department
+ */
 router.post(
-  "/department/create-department",
+  '/department/create-department',
   [
-    body("departmentName").trim().notEmpty(),
-    body("description").notEmpty().trim(),
+    body('name').not().isEmpty().trim(),
+    body('description').not().isEmpty().trim(),
   ],
-  create_department
+  isAuth,
+  CreateDepartment
 );
 
-router.get("/department", get_departments);
+/**
+ * @method GET
+ * @access Public
+ * @endpoints /api/department/create-department
+ */
+router.get('/department', GetDepartments);
 
-router.get("/department/:id", get_department);
+/**
+ * @method GET
+ * @access Public
+ * @endpoints /api/department/create-department
+ */
+router.get('/department/:id', GetDepartment);
 
-router.put("/department/:id", edit_department);
+/**
+ * @method PUT
+ * @access Private
+ * @endpoints /api/department/create-department
+ */
+router.put('/department/:id',  isAuth, EditDepartment);
 
-router.delete("/department/:id", isAuth, delete_department);
+/**
+ * @method DELETE
+ * @access Private
+ * @endpoints /api/department/create-department
+ */
+router.delete('/department/:id', isAuth, DeleteDepartment);
 
 export default router;
