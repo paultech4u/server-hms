@@ -40,12 +40,12 @@ const USER = new Schema(
     },
     hospital: {
       type: Schema.Types.ObjectId,
-      ref: "Hospital",
+      ref: "Hospitals",
       required: false,
     },
     department: {
       type: Schema.Types.ObjectId,
-      ref: "Department",
+      ref: "Departments",
       required: false,
     },
     isActive: {

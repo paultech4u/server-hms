@@ -6,7 +6,7 @@ const { JWT_SECRET_KEY } = process.env;
 export const isAuth = (req, res, next) => {
   const authheader = req.get("Authorization");
   if (!authheader) {
-    error(401, "Not authenticated");
+    error(511, "Not authenticated");
   }
   const token = authheader.split(" ")[1];
   let decodedToken;

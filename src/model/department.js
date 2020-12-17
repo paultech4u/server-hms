@@ -13,12 +13,12 @@ const DEPARTMENT_SCHEMA = new Schema(
     },
     hospital: {
       type: Schema.Types.ObjectId,
-      ref: "Hospital",
+      ref: "Hospitals",
       required: true,
     },
     creator: {
       type: Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "Admins",
       required: false,
     },
     isActive: {

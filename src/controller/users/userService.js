@@ -94,7 +94,7 @@ export const activationEmail = (to, uri, token, name) => {
     templateId: "d-25f3d7c3fe2343109f0b3269b74b0bbd",
     dynamicTemplateData: {
       name: name,
-      label: `<a style="text-decoration:none; color: white; cursor: pointer;display:inline-block" href="http://${uri}:4000/user/confirm-email?token=${token}">Verify account</a>`,
+      label: `<a style="text-decoration:none; color: white; cursor: pointer;display:inline-block" href="http://${uri}:4000/user/login">Activate account</a>`,
     },
   };
   sg.send(msg);

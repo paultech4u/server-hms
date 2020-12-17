@@ -6,7 +6,7 @@ const ADMIN_SCHEMA = new Schema(
   {
     _id: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Users",
       required: true,
     },
     hospital: {
@@ -19,7 +19,7 @@ const ADMIN_SCHEMA = new Schema(
     },
     isAdmin: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   { timestamps: true, _id: false }

@@ -310,7 +310,7 @@ export const UserAccountActivation = async function (req, res, next) {
     }
     user.isVerified = true;
     user.save();
-    activationEmail(user.email, req.host);
+    activationEmail(user.email, req.host, user.name);
     res.status(200).json({
       message: 'OK',
     });
