@@ -1,21 +1,23 @@
-import express from "express";
+import express from 'express';
 import {
   UserLogin,
   UserSignup,
   UserLogout,
   UserDelete,
-  RefreshToken,
   UserGetProfile,
   UserResetPassword,
   UserForgetPassword,
-  UserEmailVerification,
-  UserAccountDeactivation,
-} from "./user";
-import { UploadProfilePicture } from "./userUpload";
-import { MakeUserAdmin } from "./userAdmin";
-import { body, check } from "express-validator";
-import { isAuth } from "../../security/auth/authMiddleware";
-import { uploads } from "../../service/multer";
+} from './user';
+import { MakeUserAdmin } from './userAdmin';
+import { uploads } from '../../service/multer';
+import { body, check } from 'express-validator';
+import { RefreshToken } from './userRefreshToken';
+import { isAuth } from '../../security/auth/authMiddleware';
+import { UserEmailVerification } from './userEmailVerification';
+import { UploadProfilePicture } from './userUploadProfilePicture';
+import { UserAccountDeactivation, UserAccountActivation } from './userAccount';
+
+// Initialize a request methods and routes.
 const router = express.Router();
 
 /**
@@ -24,25 +26,25 @@ const router = express.Router();
  * @endpoints /api/signup
  */
 router.post(
-  "/user/signup",
+  '/user/signup',
   [
-    body("email")
+    body('email')
       .not()
       .isEmpty()
-      .normalizeEmail({ all_lowercase: true })
+      .normalizeEmail({ all_lowercase: false })
       .trim(),
-    body("tel").isNumeric().isMobilePhone().not().isEmpty(),
-    check("password")
+    body('tel').isNumeric().isMobilePhone().not().isEmpty(),
+    check('password')
       .isLength({ min: 8, max: 20 })
-      .withMessage("must contain a number")
+      .withMessage('must contain a number')
       .not()
       .isEmpty()
       .trim(),
-    body(["role", "firstname", "surname", "username", "department"])
+    body(['role', 'firstname', 'surname', 'username', 'department'])
       .not()
       .isEmpty()
       .trim()
-      .withMessage("must contain a character"),
+      .withMessage('must contain a character'),
   ],
 
   UserSignup
@@ -53,7 +55,7 @@ router.post(
  * @access Public
  * @endpoints /api/confirm-email
  */
-router.get("/user/confirm-email", UserEmailVerification);
+router.get('/user/confirm-email', UserEmailVerification);
 
 /**
  * @method POST
@@ -61,8 +63,8 @@ router.get("/user/confirm-email", UserEmailVerification);
  * @endpoints /api/login
  */
 router.post(
-  "/user/login",
-  check("email").not().isEmpty().normalizeEmail().trim(),
+  '/user/login',
+  check('email').not().isEmpty().normalizeEmail().trim(),
   UserLogin
 );
 
@@ -72,14 +74,14 @@ router.post(
  * @access Private
  * @endpoints /api/get-profile
  */
-router.get("/user/get-profile/:id", isAuth, UserGetProfile);
+router.get('/user/get-profile/', isAuth, UserGetProfile);
 
 /**
  * @method GET
  * @access Public
  * @endpoints /api/refresh-token
  */
-router.post("/refresh-token", RefreshToken);
+router.post('/refresh-token', RefreshToken);
 
 /**
  * @private
@@ -87,7 +89,7 @@ router.post("/refresh-token", RefreshToken);
  * @access Private
  * @endpoints /api/deactivate
  */
-router.put("/user/deactivate", isAuth, UserAccountDeactivation);
+router.put('/user/deactivate', isAuth, UserAccountDeactivation);
 
 /**
  * @private
@@ -95,7 +97,7 @@ router.put("/user/deactivate", isAuth, UserAccountDeactivation);
  * @access Private
  * @endpoints /api/admin
  */
-router.post("/admin", MakeUserAdmin);
+router.post('/admin', MakeUserAdmin);
 
 /**
  * @method PUT
@@ -103,8 +105,8 @@ router.post("/admin", MakeUserAdmin);
  * @endpoints /api/reset-password
  */
 router.put(
-  "/user/reset-password",
-  [body("password").not().isEmpty().isLength({ max: 30, min: 8 }).trim()],
+  '/user/reset-password',
+  [body('password').not().isEmpty().isLength({ max: 30, min: 8 }).trim()],
   isAuth,
   UserResetPassword
 );
@@ -115,17 +117,17 @@ router.put(
  * @endpoints /api/forget-password
  */
 router.put(
-  "/forget-password",
+  '/forget-password',
   [
-    body(["newPassword", "tel", "email"])
+    body(['newPassword', 'tel', 'email'])
       .not()
       .isEmpty()
       .trim()
-      .withMessage("must contain a character value"),
-    body("tel")
+      .withMessage('must contain a character value'),
+    body('tel')
       .isNumeric()
       .isMobilePhone()
-      .withMessage("must be a valid mobile number"),
+      .withMessage('must be a valid mobile number'),
   ],
   UserForgetPassword
 );
@@ -136,8 +138,8 @@ router.put(
  * @endpoints /api/profile
  */
 router.put(
-  "/user/profile",
-  uploads.single("avatar"),
+  '/user/profile',
+  uploads.single('avatar'),
   isAuth,
   UploadProfilePicture
 );
@@ -145,15 +147,15 @@ router.put(
 /**
  * @method DELETE
  * @access Private
- * @endpoints /api/delete/:adminID
+ * @endpoints /api/delete/:token
  */
-router.delete("/user/delete/:adminID", isAuth, UserDelete);
+router.delete('/user/delete/:token', isAuth, UserDelete);
 
 /**
  * @method POST
  * @access Private
  * @endpoints /api/logout
  */
-router.post("/user/logout", isAuth, UserLogout);
+router.post('/user/logout', isAuth, UserLogout);
 
 export default router;

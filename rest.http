@@ -1,2 +1,0 @@
-GET localhost:4000/user/profile HTTP/1.1
-

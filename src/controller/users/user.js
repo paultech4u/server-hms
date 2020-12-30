@@ -7,11 +7,9 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
-  verifyRefreshToken,
 } from './userService';
 import { Hospital } from '../../model/hospital';
 import { ErrorException } from '../../util/error';
-import { activationEmail } from './userService';
 import { Department } from '../../model/department';
 import { validationResult } from 'express-validator';
 import { VerificationMail } from '../../service/sendgrid';
@@ -108,54 +106,10 @@ export const UserSignup = async function (req, res, next) {
  * @param  {object} res response object
  * @param  {Function} next next middleware function
  */
-export const UserEmailVerification = async function (req, res, next) {
-  // TODO verify a new user account
-  // TODO get id token from the http query string.
-  const { token } = req.query;
-  if (!token) {
-    ErrorException(404, 'ID_Token not found');
-  }
-  let decodedToken;
-  try {
-    // TODO verify id token.
-    decodedToken = verifyAccessToken(token);
-    if (!decodedToken) {
-      ErrorException(401, 'Invalid token');
-    }
-    const { _id } = decodedToken;
-    const user = await User.findById({ _id: _id });
-    if (!user) {
-      ErrorException(404, 'User not found');
-    }
-    user.isVerified = true;
-    const [newUser] = await Promise.all([user.save()]);
-    if (!newUser) {
-      ErrorException(401, 'Email not verified');
-    }
-    res.status(200).json({
-      message: 'Email verified',
-      payload: newUser,
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-    return error;
-  }
-};
-
-/**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req request object
- * @param  {object} res response object
- * @param  {Function} next next middleware function
- */
 export const UserLogin = async function (req, res, next) {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   try {
-    const user = await User.findOne({ username: username });
+    const user = await User.findOne({ email: email });
     if (!user) {
       ErrorException(404, 'User not found');
     }
@@ -202,10 +156,11 @@ export const UserLogin = async function (req, res, next) {
 export const UserGetProfile = async function (req, res, next) {
   // TODO get a user profile payload from an authorization token
   // TODO if user is authenticated.
-  const { id } = req.params;
+  const { userID } = req;
+
   // TODO check if user exits
   try {
-    const user = await User.findOne({ _id: id })
+    const user = await User.findOne({ _id: userID })
       .populate('hospital', 'name -_id')
       .populate('department', 'name -_id')
       .exec();
@@ -225,108 +180,13 @@ export const UserGetProfile = async function (req, res, next) {
 /**
  * @typedef {Request} req
  * @typedef {Response} res
- * @param  {object} req  request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-export const RefreshToken = async function (req, res, next) {
-  const { token } = req.query;
-  try {
-    if (!token) {
-      ErrorException(401, 'No refresh token');
-    }
-    const userID = verifyRefreshToken(token);
-    const user = await User.findById(userID);
-    if (user.isActive !== true && user.isVerified !== true) {
-      res.status(401, 'User not authenticated');
-    }
-    const payload = {
-      _id: user.id,
-      isActive: true,
-    };
-    const accessToken = signAccessToken(userID, payload);
-    const refreshToken = signRefreshToken(userID, payload);
-    const verifyToken = verifyAccessToken(accessToken);
-    res.status(200).json({
-      message: 'OK',
-      user_id: user._id,
-      expiresIn: verifyToken.exp,
-      refresh_token: refreshToken,
-      access_token: accessToken,
-    });
-  } catch (error) {
-    if (!error.status) {
-      console.log(error);
-      error.status = 500;
-    }
-    next(error);
-  }
-};
-
-/**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req  request object
- * @param  {object} res  response object
- * @param  {Function} next  next middleware function
- */
-export const UserAccountDeactivation = async function (req, res, next) {
-  const { userID } = req.body;
-  try {
-    const user = await User.findById(userID);
-    if (!user) {
-      ErrorException(404, 'User not found');
-    }
-    user.isActive = false;
-    user.isVerified = false;
-    user.save();
-    res.status(200).json({
-      message: 'User disabled',
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-  }
-};
-
-/**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req request object
- * @param  {object} res response object
- * @param  {Function} next next middleware function
- */
-export const UserAccountActivation = async function (req, res, next) {
-  const { id } = req.params;
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      ErrorException(404, 'User not found');
-    }
-    if (user.isVerified === true) {
-      ErrorException(422, 'Account already verified');
-    }
-    user.isVerified = true;
-    user.save();
-    activationEmail(user.email, req.host, user.name);
-    res.status(200).json({
-      message: 'OK',
-    });
-  } catch (error) {}
-};
-
-/**
- * @typedef {Request} req
- * @typedef {Response} res
  * @param  {object} req request object
  * @param  {object} res response object
  * @param  {Function} next next middleware function
  */
 export const UserDelete = async function (req, res, next) {
   const { userID } = req.query;
-  const { adminID } = req.params;
+  const adminID = req.userID;
 
   try {
     const admin = await Admin.findOne({

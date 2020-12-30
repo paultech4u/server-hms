@@ -1,7 +1,7 @@
-import { User } from "../../model/user";
-import { Admin } from "../../model/admin";
-import { ErrorException } from "../../util/error";
-import { Hospital } from "../../model/hospital";
+import { User } from '../../model/user';
+import { Admin } from '../../model/admin';
+import { ErrorException } from '../../util/error';
+import { Hospital } from '../../model/hospital';
 
 /**
  * @typedef {Request} req
@@ -17,21 +17,21 @@ export const MakeUserAdmin = async function (req, res, next) {
   try {
     const user = await User.findById(user_id);
     if (!user) {
-      ErrorException(404, "User not found");
+      ErrorException(404, 'User not found');
     }
     if (user) {
       if (user.isAdmin === true && user.isVerified !== true) {
         //  Todo check if user already have an admin privilege
-        ErrorException(302, "User email is not verified");
+        ErrorException(302, 'User email is not verified');
       }
     }
     const admin = await Admin.findById(user_id);
     if (admin) {
-      ErrorException(302, "User already an admin");
+      ErrorException(302, 'User already an admin');
     }
     const hosp_id = await Hospital.findById(user.hospital);
     if (!hosp_id) {
-      ErrorException(404, "Hospital does not exist");
+      ErrorException(404, 'Hospital does not exist');
       return;
     }
     // Todo attach user payload to admin model
@@ -45,7 +45,7 @@ export const MakeUserAdmin = async function (req, res, next) {
     const [a, u] = await Promise.all([newAdmin.save(), user.save()]);
     if (!a && !u) {
       res.status(200).json({
-        message: "Successful",
+        message: 'Successful',
       });
       return;
     }

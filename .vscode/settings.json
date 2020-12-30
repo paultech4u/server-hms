@@ -1,4 +1,4 @@
 {
-    "editor.fontFamily": " 'Purisa' ",
+    "editor.fontFamily": "'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
     "editor.fontSize": 19,
 }

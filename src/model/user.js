@@ -1,8 +1,6 @@
-import mongoose from "mongoose";
-import { USER_ROLE } from "../util/constants";
+import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
-const { ACCOUNTANT, DOCTOR, NURSE, PHARMACIST } = USER_ROLE;
 
 const USER = new Schema(
   {
@@ -27,7 +25,7 @@ const USER = new Schema(
       required: true,
     },
     tel: {
-      type: String,
+      type: Number,
       required: true,
     },
     imageUrl: {
@@ -35,17 +33,17 @@ const USER = new Schema(
       required: false,
     },
     role: {
-      type: [ACCOUNTANT, DOCTOR, NURSE, PHARMACIST],
+      type: String,
       required: true,
     },
     hospital: {
       type: Schema.Types.ObjectId,
-      ref: "Hospitals",
+      ref: 'Hospitals',
       required: false,
     },
     department: {
       type: Schema.Types.ObjectId,
-      ref: "Departments",
+      ref: 'Departments',
       required: false,
     },
     isActive: {
@@ -66,4 +64,4 @@ const USER = new Schema(
   { timestamps: true }
 );
 
-export const User = mongoose.model("Users", USER);
+export const User = mongoose.model('Users', USER);
