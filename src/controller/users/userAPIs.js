@@ -1,13 +1,12 @@
 import express from 'express';
 import {
-  UserLogin,
-  UserSignup,
-  UserLogout,
   UserDelete,
   UserGetProfile,
   UserResetPassword,
   UserForgetPassword,
 } from './user';
+import { UserSignup } from './userSignup';
+import { UserLogin, UserLogout } from './userLogin';
 import { MakeUserAdmin } from './userAdmin';
 import { uploads } from '../../service/multer';
 import { body, check } from 'express-validator';
@@ -33,18 +32,19 @@ router.post(
       .isEmpty()
       .normalizeEmail({ all_lowercase: false })
       .trim(),
-    body('tel').isNumeric().isMobilePhone().not().isEmpty(),
+    body('phone_number').isNumeric().isMobilePhone().not().isEmpty(),
     check('password')
       .isLength({ min: 8, max: 20 })
       .withMessage('must contain a number')
       .not()
       .isEmpty()
       .trim(),
-    body(['role', 'firstname', 'surname', 'username', 'department'])
+    body(['role', 'firstname', 'lastname'])
       .not()
       .isEmpty()
       .trim()
       .withMessage('must contain a character'),
+    body(['username', 'department']).trim(),
   ],
 
   UserSignup

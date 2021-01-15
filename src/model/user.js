@@ -12,7 +12,7 @@ const USER = new Schema(
       type: String,
       required: true,
     },
-    surname: {
+    lastname: {
       type: String,
       required: true,
     },
@@ -24,7 +24,7 @@ const USER = new Schema(
       type: String || Number,
       required: true,
     },
-    tel: {
+    phone_number: {
       type: Number,
       required: true,
     },

@@ -13,11 +13,7 @@ const ADMIN_SCHEMA = new Schema(
       type: Schema.Types.ObjectId,
       required: false,
     },
-    status: {
-      type: Boolean,
-      default: false,
-    },
-    isAdmin: {
+    Admin: {
       type: Boolean,
       default: false,
     },

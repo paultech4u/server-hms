@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const { Schema, model } = mongoose;
 
@@ -26,15 +26,11 @@ const HOSPITAL_SCHEMA = new Schema(
     },
     admin: {
       type: Schema.Types.ObjectId,
-      ref: "Admins",
+      ref: 'Admins',
       required: false,
-    },
-    creation: {
-      type: Date,
-      default: Date.now,
     },
   },
   { timestamps: true }
 );
 
-export const Hospital = model("Hospitals", HOSPITAL_SCHEMA);
+export const Hospital = model('Hospitals', HOSPITAL_SCHEMA);

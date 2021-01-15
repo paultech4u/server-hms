@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { User } from '../../model/user';
 import { Admin } from '../../model/admin';
 import { Response, Request } from 'express';
@@ -10,141 +9,13 @@ import {
 } from './userService';
 import { Hospital } from '../../model/hospital';
 import { ErrorException } from '../../util/error';
-import { Department } from '../../model/department';
 import { validationResult } from 'express-validator';
-import { VerificationMail } from '../../service/sendgrid';
 
-const { JWT_SECRET_KEY } = process.env;
 
 /**
  * @global
  * @author  Paulsimon Edache
  */
-
-/**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-export const UserSignup = async function (req, res, next) {
-  const {
-    role,
-    email,
-    hospital,
-    surname,
-    firstname,
-    username,
-    password,
-    department,
-    phone_number,
-  } = req.body;
-
-  // Express validator errors
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(406).json({
-      error: errors.mapped(),
-    });
-  }
-
-  try {
-    // TODO check if department exists
-    const departments = await Department.findOne({ name: department });
-    const hospitals = await Hospital.findOne({ name: hospital });
-    if (!departments || !hospitals) {
-      ErrorException(
-        404,
-        `${
-          !departments === false ? 'Hospital not found' : 'Department not found'
-        }`
-      );
-    }
-    const user = await User.findOne({ username: username });
-    if (user) {
-      ErrorException(302, 'User exists');
-    }
-    const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      email,
-      firstname,
-      surname,
-      username,
-      password: hashPassword,
-      tel: phone_number,
-      role: role,
-      hospital: hospitals._id,
-      department: departments,
-    });
-    await newUser.save();
-    const accessToken = jwt.sign(
-      {
-        _id: newUser._id,
-      },
-      JWT_SECRET_KEY,
-      { expiresIn: '1d' }
-    );
-    // TODO send a comfirmation message
-    VerificationMail(email, req.hostname, accessToken, firstname);
-    res.status(200).json({
-      message: 'Confirmation message sent',
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-    return error;
-  }
-};
-
-/**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req request object
- * @param  {object} res response object
- * @param  {Function} next next middleware function
- */
-export const UserLogin = async function (req, res, next) {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email: email });
-    if (!user) {
-      ErrorException(404, 'User not found');
-    }
-    if (user.isVerified === false) {
-      ErrorException(401, 'Email not verified');
-    }
-    const isEqual = await bcrypt.compare(password, user.password);
-    if (!isEqual) {
-      ErrorException(401, 'Wrong password');
-    }
-    const payload = {
-      _id: user.id,
-      isActive: true,
-    };
-    const accessToken = signAccessToken(user._id, payload);
-    const refreshToken = signRefreshToken(user._id, payload);
-    const verifyToken = verifyAccessToken(accessToken);
-    user.isActive = true;
-    user.save();
-    res.status(200).json({
-      message: 'Ok',
-      email: user.email,
-      username: user.username,
-      id: user._id,
-      id_token: accessToken,
-      expires_in: verifyToken.exp,
-      refresh_token: refreshToken,
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-  }
-};
 
 /**
  * @typedef {Request} req
@@ -327,32 +198,5 @@ export const UserResetPassword = async function (req, res, next) {
       error.massage = 'change cannot be applied';
       next(error);
     }
-  }
-};
-
-/**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req  request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-export const UserLogout = async function (req, res, next) {
-  const { userID } = req;
-  try {
-    const user = await User.findById(userID);
-    if (!user) {
-      ErrorException(404, 'User not found');
-    }
-    user.isActive = false;
-    user.save();
-    res.status(200).json({
-      message: 'OK',
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
   }
 };
