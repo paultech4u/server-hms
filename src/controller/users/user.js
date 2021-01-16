@@ -11,7 +11,6 @@ import { Hospital } from '../../model/hospital';
 import { ErrorException } from '../../util/error';
 import { validationResult } from 'express-validator';
 
-
 /**
  * @global
  * @author  Paulsimon Edache
@@ -32,6 +31,16 @@ export const UserGetProfile = async function (req, res, next) {
   // TODO check if user exits
   try {
     const user = await User.findOne({ _id: userID })
+      .select([
+        'email',
+        'role',
+        'isAdmin ',
+        'firstname',
+        'lastname',
+        'isActive',
+        'username',
+        'phone_number',
+      ])
       .populate('hospital', 'name -_id')
       .populate('department', 'name -_id')
       .exec();

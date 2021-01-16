@@ -17,16 +17,14 @@ import { ErrorException } from '../../util/error';
  * @param  {Function} next next middleware function
  */
 export const RefreshToken = async function (req, res, next) {
-  const { token } = req.query;
+  const { userID } = req;
   try {
-    if (!token) {
-      ErrorException(401, 'No refresh token');
+    if (!userID) {
+      ErrorException(401, 'No user id found');
     }
-    const userID = verifyRefreshToken(token);
+
     const user = await User.findById(userID);
-    if (user.isActive !== true && user.isVerified !== true) {
-      res.status(401, 'User not authenticated');
-    }
+
     const payload = {
       _id: user.id,
       isActive: true,
@@ -35,10 +33,10 @@ export const RefreshToken = async function (req, res, next) {
     const refreshToken = signRefreshToken(userID, payload);
     const verifyToken = verifyAccessToken(accessToken);
     res.status(200).json({
-      message: 'OK',
-      expiresIn: verifyToken.exp,
-      refreshToken: refreshToken,
-      accessToken: accessToken,
+      message: 'Ok',
+      expires_in: verifyToken.exp,
+      refresh_token: refreshToken,
+      id_token: accessToken,
     });
   } catch (error) {
     if (!error.status) {

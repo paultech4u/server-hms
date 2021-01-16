@@ -73,6 +73,7 @@ export const UserSignup = async function (req, res, next) {
         password: hashed_password,
         phone_number,
         role: role,
+        isAdmin: true,
       });
       new_user.save();
       new_admin = new Admin({

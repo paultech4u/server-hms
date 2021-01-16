@@ -6,7 +6,7 @@ import {
   UserForgetPassword,
 } from './user';
 import { UserSignup } from './userSignup';
-import { UserLogin, UserLogout } from './userLogin';
+import { UserLogin } from './userLogin';
 import { MakeUserAdmin } from './userAdmin';
 import { uploads } from '../../service/multer';
 import { body, check } from 'express-validator';
@@ -77,11 +77,11 @@ router.post(
 router.get('/user/get-profile/', isAuth, UserGetProfile);
 
 /**
- * @method GET
+ * @method POST
  * @access Public
  * @endpoints /api/refresh-token
  */
-router.post('/refresh-token', RefreshToken);
+router.post('/refresh', isAuth, RefreshToken);
 
 /**
  * @private
@@ -150,12 +150,5 @@ router.put(
  * @endpoints /api/delete/:token
  */
 router.delete('/user/delete/:token', isAuth, UserDelete);
-
-/**
- * @method POST
- * @access Private
- * @endpoints /api/logout
- */
-router.post('/user/logout', isAuth, UserLogout);
 
 export default router;

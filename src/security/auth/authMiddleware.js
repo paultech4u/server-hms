@@ -9,6 +9,7 @@ export const isAuth = (req, res, next) => {
     error(511, 'Not authenticated');
   }
   const token = authheader.split(' ')[1];
+  console.log(token)
   let decodedToken;
   try {
     decodedToken = jwt.verify(token, JWT_SECRET_KEY);

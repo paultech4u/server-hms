@@ -48,7 +48,7 @@ export const UserLogin = async function (req, res, next) {
       message: 'Ok',
       email: user.email,
       username: user.username,
-      id: user._id,
+      user_id: user._id,
       id_token: accessToken,
       expires_in: verifyToken.exp,
       refresh_token: refreshToken,
@@ -61,29 +61,5 @@ export const UserLogin = async function (req, res, next) {
   }
 };
 
-/**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req  request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-export const UserLogout = async function (req, res, next) {
-    const { userID } = req;
-    try {
-      const user = await User.findById(userID);
-      if (!user) {
-        ErrorException(404, 'User not found');
-      }
-      user.isActive = false;
-      user.save();
-      res.status(200).json({
-        message: 'OK',
-      });
-    } catch (error) {
-      if (!error.status) {
-        error.status = 500;
-      }
-      next(error);
-    }
-  };
+
+
