@@ -2,12 +2,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import bodyParser from 'body-parser';
-// import logger from 'loglevel';
 import { DATABASE } from './src/database/db';
 
-import USER_ROUTE from './src/controller/users/userAPIs';
+import USER_ROUTE from './src/controller/user/userAPIs';
 import DEPARTMENT_ROUTE from './src/controller/departments/departmentAPIs';
-import HOSPITAL_ROUTE from './src/controller/hospital/hopsitalAPIs';
+import HOSPITAL_ROUTE from './src/controller/hospital/hospitalAPIs';
 
 const app = express();
 

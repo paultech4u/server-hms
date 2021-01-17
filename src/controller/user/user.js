@@ -109,67 +109,6 @@ export const UserDelete = async function (req, res, next) {
 /**
  * @typedef {Request} req
  * @typedef {Response} res
- * @param  {object} req  request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-export const UserForgetPassword = async function (req, res, next) {
-  const { newPassword, mobileNumber, email } = req.body;
-  const errors = validationResult(req);
-  try {
-    if (!errors.isEmpty()) {
-      res.status(406).json({
-        error: errors.mapped(),
-      });
-    }
-    const user = await User.findOne({ tel: mobileNumber }).or([
-      { email: email },
-    ]);
-    if (!user) {
-      ErrorException(404, 'User not found');
-    }
-    if (email !== user.email) {
-      ErrorException(404, `${email} is not a registered email address`);
-    }
-    if (user.isVerified == false) {
-      ErrorException(404, `${email} is not verified`);
-    }
-    const isMatch = await bcrypt.compare(newPass, user.password);
-    if (isMatch) {
-      ErrorException(
-        406,
-        'new password must not be the same with the old password'
-      );
-    }
-    const hashPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashPassword;
-    const [isSaved] = await Promise.all([user.save()]);
-    if (isSaved) {
-      const payload = {
-        _id: user.id,
-        isActive: false,
-      };
-      const accessToken = signAccessToken(user.id, payload);
-      const refreshToken = signRefreshToken(user.id, payload);
-      const verifyToken = verifyAccessToken(accessToken);
-      res.status(200).json({
-        message: 'OK',
-        id_token: accessToken,
-        expires_in: verifyToken.exp,
-        refresh_token: refreshToken,
-      });
-    }
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-  }
-};
-
-/**
- * @typedef {Request} req
- * @typedef {Response} res
  * @param  {object} req request object
  * @param  {object} res response object
  * @param  {Function} next next middleware function

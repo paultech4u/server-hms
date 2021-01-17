@@ -26,10 +26,10 @@ export const UserLogin = async function (req, res, next) {
   try {
     const user = await User.findOne({ email: email });
     if (!user) {
-      ErrorException(404, 'Email does not found');
+      ErrorException(404, `${email} does not exits`);
     }
     if (user.isVerified === false) {
-      ErrorException(401, 'Email not verified');
+      ErrorException(401, `${email} not verified`);
     }
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
@@ -60,6 +60,3 @@ export const UserLogin = async function (req, res, next) {
     next(error);
   }
 };
-
-
-

@@ -1,12 +1,8 @@
 import express from 'express';
-import {
-  UserDelete,
-  UserGetProfile,
-  UserResetPassword,
-  UserForgetPassword,
-} from './user';
+import { UserDelete, UserGetProfile, UserResetPassword } from './user';
 import { UserSignup } from './userSignup';
 import { UserLogin } from './userLogin';
+import { UserForgetPassword } from './userForgetPassword';
 import { MakeUserAdmin } from './userAdmin';
 import { uploads } from '../../service/multer';
 import { body, check } from 'express-validator';
@@ -116,18 +112,16 @@ router.put(
  * @access Public
  * @endpoints /api/forget-password
  */
-router.put(
+router.post(
   '/forget-password',
   [
-    body(['newPassword', 'tel', 'email'])
+    body('email').isEmail().withMessage('must be an email'),
+    body('password')
       .not()
       .isEmpty()
       .trim()
       .withMessage('must contain a character value'),
-    body('tel')
-      .isNumeric()
-      .isMobilePhone()
-      .withMessage('must be a valid mobile number'),
+   
   ],
   UserForgetPassword
 );

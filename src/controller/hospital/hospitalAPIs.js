@@ -1,7 +1,7 @@
 import express from 'express';
 import { body } from 'express-validator';
 import rateLimitter from 'express-rate-limit';
-import { HospitalRegistration } from '../hospital/hospital';
+import { HospitalRegistration } from './hospital';
 // import { isAuth } from '../../security/auth/authMiddleware';
 
 const router = express.Router();
