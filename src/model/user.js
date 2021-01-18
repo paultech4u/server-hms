@@ -46,10 +46,6 @@ const USER = new Schema(
       ref: 'Departments',
       required: false,
     },
-    isActive: {
-      type: Boolean,
-      default: false,
-    },
     isAdmin: {
       type: Boolean,
       required: false,

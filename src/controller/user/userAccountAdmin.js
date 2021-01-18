@@ -11,7 +11,7 @@ import { Hospital } from '../../model/hospital';
  * @param  {Function} next next middleware function
  * @returns {Promise} Promise
  */
-export const MakeUserAdmin = async function (req, res, next) {
+const MakeUserAdmin = async function (req, res, next) {
   // Todo Assign an admin privilege to a user
   const { user_id } = req.body;
   try {
@@ -56,3 +56,5 @@ export const MakeUserAdmin = async function (req, res, next) {
     next(error);
   }
 };
+
+export default MakeUserAdmin;

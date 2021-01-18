@@ -6,7 +6,7 @@ dotenv.config({ path: './.env' });
 
 const { DB_HOST } = process.env;
 
-export const DATABASE = mongoose
+export const DatabaseConfig = mongoose
   .connect(DB_HOST, {
     useNewUrlParser: true,
     useUnifiedTopology: true,

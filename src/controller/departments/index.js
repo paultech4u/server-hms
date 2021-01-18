@@ -6,8 +6,8 @@ import {
   GetDepartments,
   DeleteDepartment,
   CreateDepartment,
-} from '../departments/department';
-import { isAuth } from '../../security/auth/authMiddleware';
+} from './department';
+import isAuthenticated from '../../auth/authMiddleware';
 const router = express.Router();
 
 /**
@@ -43,13 +43,13 @@ router.get('/department/:id', GetDepartment);
  * @access Private
  * @endpoints /api/department/:id
  */
-router.put('/department/:id', isAuth, EditDepartment);
+router.put('/department/:id', isAuthenticated, EditDepartment);
 
 /**
  * @method DELETE
  * @access Private
  * @endpoints /api/department/create-department
  */
-router.delete('/department/:id', isAuth, DeleteDepartment);
+router.delete('/department/:id', isAuthenticated, DeleteDepartment);
 
 export default router;

@@ -5,7 +5,7 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
-} from './userService';
+} from './userAccountService';
 import { ErrorException } from '../../util/error';
 import { validationResult } from 'express-validator';
 
@@ -21,7 +21,7 @@ import { validationResult } from 'express-validator';
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
  */
-export const UserForgetPassword = async function (req, res, next) {
+const UserForgetPassword = async function (req, res, next) {
   const { password, email } = req.body;
   const errors = validationResult(req);
   try {
@@ -74,3 +74,5 @@ export const UserForgetPassword = async function (req, res, next) {
     next(error);
   }
 };
+
+export default UserForgetPassword;

@@ -1,6 +1,6 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
-import { verifyAccessToken } from './userService';
+import { verifyAccessToken } from './userAccountService';
 import { ErrorException } from '../../util/error';
 
 /**
@@ -10,7 +10,7 @@ import { ErrorException } from '../../util/error';
  * @param  {object} res response object
  * @param  {Function} next next middleware function
  */
-export const UserEmailVerification = async function (req, res, next) {
+const UserEmailVerification = async function (req, res, next) {
   // TODO verify a new user account
   // TODO get id token from the http query string.
   const { token } = req.query;
@@ -46,3 +46,5 @@ export const UserEmailVerification = async function (req, res, next) {
     return error;
   }
 };
+
+export default UserEmailVerification;

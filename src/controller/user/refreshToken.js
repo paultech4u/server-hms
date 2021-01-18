@@ -4,8 +4,7 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
-  verifyRefreshToken,
-} from './userService';
+} from './userAccountService';
 
 import { ErrorException } from '../../util/error';
 
@@ -16,7 +15,7 @@ import { ErrorException } from '../../util/error';
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
  */
-export const RefreshToken = async function (req, res, next) {
+const RefreshToken = async function (req, res, next) {
   const { userID } = req;
   try {
     if (!userID) {
@@ -46,3 +45,5 @@ export const RefreshToken = async function (req, res, next) {
     next(error);
   }
 };
+
+export default RefreshToken;

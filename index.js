@@ -2,11 +2,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import bodyParser from 'body-parser';
-import { DATABASE } from './src/database/db';
+import { DatabaseConfig } from './src/database/config';
 
-import USER_ROUTE from './src/controller/user/userAPIs';
-import DEPARTMENT_ROUTE from './src/controller/departments/departmentAPIs';
-import HOSPITAL_ROUTE from './src/controller/hospital/hospitalAPIs';
+import USER_ROUTE from './src/controller/user';
+import DEPARTMENT_ROUTE from './src/controller/departments';
+import HOSPITAL_ROUTE from './src/controller/hospital';
 
 const app = express();
 
@@ -37,5 +37,5 @@ app.use((error, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Listening on port ${PORT}`);
-  DATABASE;
+  DatabaseConfig;
 });

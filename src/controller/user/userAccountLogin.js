@@ -5,7 +5,7 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
-} from './userService';
+} from './userAccountService';
 
 import { ErrorException } from '../../util/error';
 
@@ -21,12 +21,12 @@ import { ErrorException } from '../../util/error';
  * @param  {object} res response object
  * @param  {Function} next next middleware function
  */
-export const UserLogin = async function (req, res, next) {
+const UserLogin = async function (req, res, next) {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email: email });
     if (!user) {
-      ErrorException(404, `${email} does not exits`);
+      ErrorException(404, `${email} does not exists`);
     }
     if (user.isVerified === false) {
       ErrorException(401, `${email} not verified`);
@@ -37,12 +37,10 @@ export const UserLogin = async function (req, res, next) {
     }
     const payload = {
       _id: user.id,
-      isActive: true,
     };
     const accessToken = signAccessToken(user._id, payload);
     const refreshToken = signRefreshToken(user._id, payload);
     const verifyToken = verifyAccessToken(accessToken);
-    user.isActive = true;
     user.save();
     res.status(200).json({
       message: 'Ok',
@@ -60,3 +58,5 @@ export const UserLogin = async function (req, res, next) {
     next(error);
   }
 };
+
+export default UserLogin;

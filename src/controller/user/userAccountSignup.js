@@ -23,7 +23,7 @@ const { JWT_SECRET_KEY } = process.env;
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
  */
-export const UserSignup = async function (req, res, next) {
+const UserSignup = async function (req, res, next) {
   const {
     role,
     email,
@@ -58,7 +58,7 @@ export const UserSignup = async function (req, res, next) {
     const hospitals = await Hospital.findOne({ name: hospital_name });
 
     if (!hospitals) {
-      ErrorException(404, 'Hospital does not exist');
+      ErrorException(404, 'Hospital does not exists');
     }
 
     const hashed_password = await bcrypt.hash(password, 10);
@@ -92,7 +92,7 @@ export const UserSignup = async function (req, res, next) {
     // Query for an existing department
     const departments = await Department.findOne({ name: department_name });
     if (!departments) {
-      ErrorException(404, 'Departments does not exist');
+      ErrorException(404, 'Departments does not exists');
     }
 
     new_user = new User({
@@ -127,3 +127,5 @@ export const UserSignup = async function (req, res, next) {
     return error;
   }
 };
+
+export default UserSignup;
