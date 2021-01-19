@@ -135,6 +135,6 @@ router.put(
  * @access Private
  * @endpoints /api/delete/:token
  */
-router.delete('/user/delete/:token', isAuthenticated, UserDelete);
+router.delete('/user/delete', isAuthenticated, UserDelete);
 
 export default router;

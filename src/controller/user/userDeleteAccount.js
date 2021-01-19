@@ -16,33 +16,34 @@ import { ErrorException } from '../../util/error';
  * @author  Paulsimon Edache
  */
 const UserDelete = async function (req, res, next) {
-  const { userId } = req.query;
-  const adminId = req.userId;
+  const { Id } = req.query;
+  const { userId } = req;
 
   try {
-    const admin = await Admin.findOne({
-      _id: adminId,
-    });
+    const admin = await Admin.findById(userId);
 
     if (!admin) {
       ErrorException(401, 'No admin found');
     }
-    // @TODO check user is an admin
-    const hospital = await Hospital.findOne({ name: admin.hospital });
 
-    if (admin._id !== hospital.admin) {
+    // @TODO check user is an admin
+    const isHospitalAdmin = await Hospital.findOne({ admin: admin._id });
+
+    // @TODO check if user as no authorize access.
+    if (admin._id !== isHospitalAdmin.admin) {
       ErrorException(401, 'Unathorised access');
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(Id);
     if (!user) {
       ErrorException(404, 'User not found');
     }
 
-    if (adminId === user._id) {
+    // @TODO compare id if they are equal.
+    if (userId === user._id) {
       ErrorException(406, 'Cannot remove admin');
     }
-    const deleteUser = await User.deleteOne({ _id: userId });
+    const deleteUser = await User.deleteOne({ _id: Id });
     deleteUser.save();
     return res.status(200).json({ message: 'Successful' });
   } catch (error) {
