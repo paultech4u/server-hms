@@ -79,7 +79,6 @@ const UserSignup = async function (req, res, next) {
       new_admin = new Admin({
         _id: new_user._id,
         hospital: hospitals._id,
-        isAdmin: true,
       });
       new_admin.save();
       hospitals.admin = new_admin._id;

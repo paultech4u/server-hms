@@ -1,12 +1,12 @@
 import express from 'express';
 import { body } from 'express-validator';
-import rateLimitter from 'express-rate-limit';
-import { HospitalRegistration } from './hospital';
+import RateLimitter from 'express-rate-limit';
+import HospitalAccountReg from './hospitalAccountReg';
 // import { isAuth } from '../../security/auth/authMiddleware';
 
 const router = express.Router();
 
-const register_ratelimit = rateLimitter({
+const register_ratelimit = RateLimitter({
   windowMs: 3 * 60 * 1000,
   max: 5,
   message: 'To many requests sents',
@@ -20,7 +20,7 @@ router.post(
     body(['hospital_name', 'state', 'address']).trim(),
   ],
   register_ratelimit,
-  HospitalRegistration
+  HospitalAccountReg
 );
 
 export default router;

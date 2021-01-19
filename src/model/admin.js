@@ -13,10 +13,6 @@ const ADMIN_SCHEMA = new Schema(
       type: Schema.Types.ObjectId,
       required: false,
     },
-    Admin: {
-      type: Boolean,
-      default: false,
-    },
   },
   { timestamps: true, _id: false }
 );

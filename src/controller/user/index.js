@@ -4,12 +4,10 @@ import UserLogin from './userAccountLogin';
 import UserDelete from './userAccountDelete';
 import UserSignup from './userAccountSignup';
 import { uploads } from '../../service/multer';
-import MakeUserAdmin from './userAccountAdmin';
-import { body, check } from 'express-validator';
+import { body } from 'express-validator';
 import UserGetProfile from './userAccountGetProfile';
 import isAuthenticated from '../../auth/authMiddleware';
 import UserResetPassword from './userAccountResetPassword';
-// import UserAccountActivation from './userAccountActivation';
 import UserForgetPassword from './userAccountForgetPassword';
 import UserAccountDeactivation from './userAccountDeactivation';
 import UserEmailVerification from './userAccountEmailVerification';
@@ -89,14 +87,6 @@ router.post('/refresh', isAuthenticated, RefreshToken);
  * @endpoints /api/deactivate
  */
 router.put('/user/deactivate', isAuthenticated, UserAccountDeactivation);
-
-/**
- * @private
- * @method POST
- * @access Private
- * @endpoints /api/admin
- */
-router.post('/admin', MakeUserAdmin);
 
 /**
  * @method PUT

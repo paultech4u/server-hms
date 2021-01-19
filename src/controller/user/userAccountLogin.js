@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 import { User } from '../../model/user';
-import { Response, Request } from 'express';
 import {
   signAccessToken,
   signRefreshToken,
@@ -13,10 +12,9 @@ import { ErrorException } from '../../util/error';
  * @global
  * @author  Paulsimon Edache
  */
-
 /**
- * @typedef {Request} req
- * @typedef {Response} res
+ * @typedef {object} req
+ * @typedef {object} res
  * @param  {object} req request object
  * @param  {object} res response object
  * @param  {Function} next next middleware function

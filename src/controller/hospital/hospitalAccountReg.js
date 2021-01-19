@@ -3,13 +3,13 @@ import { ErrorException } from '../../util/error';
 import { validationResult } from 'express-validator';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
+ * @typedef {object} req
+ * @typedef {object} res
  * @param  {object} req  request object
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
  */
-export const HospitalRegistration = async function (req, res, next) {
+const HospitalAccountReg = async function (req, res, next) {
   const { hospital_name, hospital_email, state, address, zip_code } = req.body;
 
   // Express validation
@@ -42,3 +42,5 @@ export const HospitalRegistration = async function (req, res, next) {
     next(error);
   }
 };
+
+export default HospitalAccountReg;
