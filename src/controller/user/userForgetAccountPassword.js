@@ -47,26 +47,28 @@ const UserForgetPassword = async function (req, res, next) {
         'new password must not be the same with the old password'
       );
     }
-    const hashPassword = await bcrypt.hash(password, 10);
-    user.password = hashPassword;
-    const [isSaved] = await Promise.all([user.save()]);
-    if (isSaved) {
-      const payload = {
-        _id: user.id,
-      };
-      const accessToken = signAccessToken(user.id, payload);
-      const refreshToken = signRefreshToken(user.id, payload);
-      const verifyToken = verifyAccessToken(accessToken);
-      res.status(200).json({
-        message: 'OK',
-        email: user.email,
-        username: user.username,
-        user_id: user._id,
-        id_token: accessToken,
-        expires_in: verifyToken.exp,
-        refresh_token: refreshToken,
-      });
-    }
+
+    const payload = {
+      id: user.id,
+    };
+
+    const hash_password = await bcrypt.hash(password, 10);
+    const accessToken = signAccessToken(user.id, payload);
+    const verifyIdToken = verifyAccessToken(accessToken);
+    const refreshToken = signRefreshToken(user.id, payload);
+    user.password = hash_password;
+    user.refToken = refreshToken;
+
+    await user.save();
+    res.status(200).json({
+      message: 'OK',
+      email: user.email,
+      user_id: user._id,
+      username: user.username,
+      id_token: verifyIdToken,
+      refresh_token: refreshToken,
+      expires_in: verifyIdToken.exp,
+    });
   } catch (error) {
     if (!error.status) {
       error.status = 500;

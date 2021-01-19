@@ -10,7 +10,7 @@ sg.setApiKey(SG_API_KEY);
  * @param  {string} to receiving user email
  * @param  {string} name receiving user name
  */
-export const VerificationMail = (to, uri, token, name) => {
+export const comfirmationMSG = (to, uri, token, name) => {
   const msgTemplate = {
     to: to,
     from: "speak2donsimon@gmail.com",

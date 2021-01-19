@@ -12,11 +12,11 @@ import { ErrorException } from '../../util/error';
 const UserGetProfile = async function (req, res, next) {
   // TODO get a user profile payload from an authorization token
   // TODO if user is authenticated.
-  const { userID } = req;
+  const { userId } = req;
 
   // TODO check if user exits
   try {
-    const user = await User.findOne({ _id: userID })
+    const user = await User.findOne({ _id: userId })
       .select([
         'email',
         'role',

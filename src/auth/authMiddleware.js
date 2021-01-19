@@ -9,7 +9,6 @@ const isAuthenticated = (req, res, next) => {
     error(511, 'Not authenticated');
   }
   const token = authheader.split(' ')[1];
-  console.log(token);
   let decodedToken;
   try {
     decodedToken = jwt.verify(token, JWT_SECRET_KEY);
@@ -20,7 +19,7 @@ const isAuthenticated = (req, res, next) => {
   if (!decodedToken) {
     error(401, 'Token invalid');
   }
-  req.userID = decodedToken._id;
+  req.userId = decodedToken.id;
   next();
 };
 

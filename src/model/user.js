@@ -46,6 +46,10 @@ const USER = new Schema(
       ref: 'Departments',
       required: false,
     },
+    refToken: {
+      type: String,
+      required: false,
+    },
     isAdmin: {
       type: Boolean,
       required: false,

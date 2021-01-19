@@ -1,26 +1,25 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../../model/user';
-import { Admin } from '../../model/admin';
-import { Response, Request } from 'express';
 import { Hospital } from '../../model/hospital';
 import { ErrorException } from '../../util/error';
 import { Department } from '../../model/department';
 import { validationResult } from 'express-validator';
-import { VerificationMail } from '../../service/sendgrid';
+import { comfirmationMSG } from '../../service/sendgrid';
 
 const { JWT_SECRET_KEY } = process.env;
 
 /**
  * @global
+ * @typedef {object} request
+ * @typedef {object} response
  * @author  Paulsimon Edache
  */
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req request object
- * @param  {object} res  response object
+ 
+ * @param  {request} req request object
+ * @param  {response} res  response object
  * @param  {Function} next next middleware function
  */
 const UserSignup = async function (req, res, next) {
@@ -36,6 +35,8 @@ const UserSignup = async function (req, res, next) {
     department_name,
   } = req.body;
 
+  const { userId } = req;
+
   // Express validator errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -45,47 +46,26 @@ const UserSignup = async function (req, res, next) {
   }
 
   try {
-    let new_user = null;
-    let new_admin = null;
-    let admin_role_types = ['Admin', 'ADMIN', 'admin'];
+    // @TODO check if user making this request is an admin
+    const admin = await User.findById(userId);
+    if (!admin) {
+      ErrorException(404, 'Admin not found');
+    }
 
-    // Check if user exist
+    if (admin.role !== 'ADMIN') {
+      ErrorException(401, 'Unauthorised access');
+    }
+
+    // @TODO Check if user exist
     const user = await User.findOne({ email: email });
     if (user) {
       ErrorException(302, 'Email exists');
     }
 
-    const hospitals = await Hospital.findOne({ name: hospital_name });
+    const hospital = await Hospital.findOne({ name: hospital_name });
 
-    if (!hospitals) {
+    if (!hospital) {
       ErrorException(404, 'Hospital does not exists');
-    }
-
-    const hashed_password = await bcrypt.hash(password, 10);
-
-    // Query for admin role type for valid user role types
-    if (role === admin_role_types.find((values) => values === role)) {
-      new_user = new User({
-        email,
-        firstname,
-        lastname,
-        username,
-        password: hashed_password,
-        phone_number,
-        role: role,
-        isAdmin: true,
-      });
-      new_user.save();
-      new_admin = new Admin({
-        _id: new_user._id,
-        hospital: hospitals._id,
-      });
-      new_admin.save();
-      hospitals.admin = new_admin._id;
-      hospitals.save();
-      return res.status(200).json({
-        message: 'Ok',
-      });
     }
 
     // Query for an existing department
@@ -94,7 +74,10 @@ const UserSignup = async function (req, res, next) {
       ErrorException(404, 'Departments does not exists');
     }
 
-    new_user = new User({
+    // Encrpyt password
+    const hashed_password = await bcrypt.hash(password, 10);
+
+    const new_user = new User({
       email,
       firstname,
       lastname,
@@ -102,19 +85,19 @@ const UserSignup = async function (req, res, next) {
       password: hashed_password,
       phone_number,
       role: role,
-      hospital: hospitals._id,
+      hospital: hospital._id,
       department: departments._id,
     });
     await new_user.save();
     const accessToken = jwt.sign(
       {
-        _id: new_user._id,
+        id: new_user._id,
       },
       JWT_SECRET_KEY,
       { expiresIn: '10m' }
     );
-    // Send a comfirmation message
-    VerificationMail(email, req.hostname, accessToken, firstname);
+    // @TODO Send a comfirmation message to newly created account
+    comfirmationMSG(email, req.hostname, accessToken, firstname);
     return res.status(200).json({
       message: 'Confirmation message sent',
     });
@@ -123,7 +106,6 @@ const UserSignup = async function (req, res, next) {
       error.status = 500;
     }
     next(error);
-    return error;
   }
 };
 

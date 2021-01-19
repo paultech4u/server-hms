@@ -1,16 +1,16 @@
 import express from 'express';
-import RefreshToken from './refreshToken';
-import UserLogin from './userAccountLogin';
-import UserDelete from './userAccountDelete';
+import UserLogin from './userLoginAccount';
+import UserDelete from './userDeleteAccount';
 import UserSignup from './userAccountSignup';
 import { uploads } from '../../service/multer';
 import { body } from 'express-validator';
-import UserGetProfile from './userAccountGetProfile';
+import UserGetProfile from './userGetAccountProfile';
+import RefreshToken from './userRefreshAccountTokens';
 import isAuthenticated from '../../auth/authMiddleware';
-import UserResetPassword from './userAccountResetPassword';
-import UserForgetPassword from './userAccountForgetPassword';
-import UserAccountDeactivation from './userAccountDeactivation';
-import UserEmailVerification from './userAccountEmailVerification';
+import UserResetPassword from './userResetAccountPassword';
+import UserForgetPassword from './userForgetAccountPassword';
+import UserAccountDeactivation from './userDeactivateAccount';
+import UserEmailVerification from './userAccountVerification';
 import { UploadProfilePicture } from './userAccountUploadProfilePicture';
 
 // Initialize a request methods and routes.
@@ -71,7 +71,7 @@ router.post(
  * @access Private
  * @endpoints /api/get-profile
  */
-router.get('/user/get-profile/', isAuthenticated, UserGetProfile);
+router.get('/user/get-profile', isAuthenticated, UserGetProfile);
 
 /**
  * @method POST
