@@ -3,6 +3,7 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
+  verifyRefreshToken,
 } from './userAccountService';
 
 import { ErrorException } from '../../util/error';
@@ -28,10 +29,6 @@ const RefreshToken = async function (req, res, next) {
 
     const user = await User.findById(userId);
 
-    const payload = {
-      id: user.id,
-    };
-
     if (!user.refToken) {
       ErrorException(404, 'No token present');
     }
@@ -46,24 +43,26 @@ const RefreshToken = async function (req, res, next) {
     const accessToken = signAccessToken(userId, payload);
     const verifyIdToken = verifyAccessToken(accessToken);
 
-    if (verifyRefToken.error.message === 'jwt expired') {
-      new_reftoken = signRefreshToken(user._id, payload);
-      const newUserReftoken = new User({
-        refToken: new_reftoken,
-      });
-      await newUserReftoken.save();
-      return res.status(200).json({
-        message: 'Ok',
-        expires_in: verifyIdToken.exp,
-        refresh_token: newUserReftoken,
-        id_token: verifyIdToken,
-      });
+    if (!verifyRefToken) {
+      if (verifyRefToken.error.message === 'jwt expired') {
+        new_reftoken = signRefreshToken(user._id, payload);
+        const newUserReftoken = new User({
+          refToken: new_reftoken,
+        });
+        await newUserReftoken.save();
+        return res.status(200).json({
+          message: 'Ok',
+          expires_in: verifyIdToken.exp,
+          refresh_token: newUserReftoken,
+          id_token: verifyIdToken,
+        });
+      }
     } else {
       return res.status(200).json({
         message: 'Ok',
         expires_in: verifyIdToken.exp,
         refresh_token: user.refToken,
-        id_token: verifyIdToken,
+        id_token: accessToken,
       });
     }
   } catch (error) {

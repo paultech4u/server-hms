@@ -38,10 +38,6 @@ const UserLogin = async function (req, res, next) {
       ErrorException(401, 'wrong password');
     }
 
-    if (!user.refToken) {
-      ErrorException(404, 'No token present');
-    }
-
     let new_reftoken = null;
 
     const payload = {
@@ -50,35 +46,49 @@ const UserLogin = async function (req, res, next) {
 
     const verifyRefToken = verifyRefreshToken(user.refToken);
     const accessToken = signAccessToken(user._id, payload);
-    const verifyIdToken = verifyAccessToken(accessToken)
+    const verifyIdToken = verifyAccessToken(accessToken);
 
-    if (verifyRefToken.error.message === 'jwt expired') {
+    if (!user.refToken) {
       new_reftoken = signRefreshToken(user._id, payload);
-      const newUserReftoken = new User({
-        refToken: new_reftoken,
-      });
-      await newUserReftoken.save();
-      return res.status(200).json({
-        message: 'Ok',
-        user_id: user._id,
-        email: user.email,
-        id_token: verifyIdToken,
-        refToken: new_reftoken,
-        username: user.username,
-        expires_in: verifyIdToken.exp,
-      });
-    } else {
+      user.refToken = new_reftoken;
       await user.save();
       return res.status(200).json({
         message: 'Ok',
         user_id: user._id,
         email: user.email,
         id_token: accessToken,
-        refToken: user.refToken,
+        refToken: new_reftoken,
         username: user.username,
-        expires_in: accessToken.exp,
+        expires_in: verifyIdToken.exp,
       });
     }
+
+    if (verifyRefToken.error) {
+      if (verifyRefToken.error.message === 'jwt expired' || !user.refToken) {
+        new_reftoken = signRefreshToken(user._id, payload);
+        user.refToken = new_reftoken;
+        await user.save();
+        return res.status(200).json({
+          message: 'Ok',
+          user_id: user._id,
+          email: user.email,
+          id_token: accessToken,
+          refToken: new_reftoken,
+          username: user.username,
+          expires_in: verifyIdToken.exp,
+        });
+      }
+    }
+
+    return res.status(200).json({
+      message: 'Ok',
+      user_id: user._id,
+      email: user.email,
+      id_token: accessToken,
+      refToken: user.refToken,
+      username: user.username,
+      expires_in: verifyIdToken.exp,
+    });
   } catch (error) {
     if (!error.status) {
       error.status = 500;

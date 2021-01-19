@@ -3,7 +3,7 @@ import UserLogin from './userLoginAccount';
 import UserDelete from './userDeleteAccount';
 import UserSignup from './userAccountSignup';
 import { uploads } from '../../service/multer';
-import { body } from 'express-validator';
+import { body, check } from 'express-validator';
 import UserGetProfile from './userGetAccountProfile';
 import RefreshToken from './userRefreshAccountTokens';
 import isAuthenticated from '../../auth/authMiddleware';

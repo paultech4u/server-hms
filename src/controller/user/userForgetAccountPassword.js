@@ -65,7 +65,7 @@ const UserForgetPassword = async function (req, res, next) {
       email: user.email,
       user_id: user._id,
       username: user.username,
-      id_token: verifyIdToken,
+      id_token: accessToken,
       refresh_token: refreshToken,
       expires_in: verifyIdToken.exp,
     });
