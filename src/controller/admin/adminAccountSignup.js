@@ -5,16 +5,17 @@ import { Hospital } from '../../model/hospital';
 import { ErrorException } from '../../util/error';
 import { validationResult } from 'express-validator';
 
-const { JWT_SECRET_KEY } = process.env;
-
 /**
  * @typedef {object} req
  * @typedef {object} res
+ */
+
+/**
  * @param  {object} req request object
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
  */
-const AdminSignup = async function (req, res, next) {
+const adminAccountSignup = async function (req, res, next) {
   const {
     role,
     email,
@@ -87,4 +88,4 @@ const AdminSignup = async function (req, res, next) {
   }
 };
 
-export default AdminSignup;
+export default adminAccountSignup;

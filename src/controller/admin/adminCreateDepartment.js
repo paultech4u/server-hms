@@ -8,6 +8,9 @@ import { Department } from '../../model/department';
 /**
  * @typedef {Request} req
  * @typedef {Response} res
+ */
+
+/**
  * @param  {object} req request object
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
@@ -60,8 +63,6 @@ export const CreateDepartment = async function (req, res, next) {
 };
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
  * @param  {object} req request object
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
@@ -84,7 +85,10 @@ export const GetDepartments = async function (req, res, next) {
         // TODO throw error if department is not available
         ErrorException(404, 'No Departments found');
       })
-      .populate('hospital', 'name email state creation address admin zip_code -_id');
+      .populate(
+        'hospital',
+        'name email state creation address admin zip_code -_id'
+      );
     // TODO number of available departments
     const totalDepartments = await Department.find().countDocuments();
 
@@ -102,8 +106,6 @@ export const GetDepartments = async function (req, res, next) {
 };
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
  * @param  {object} req request object
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
@@ -135,8 +137,6 @@ export const GetDepartment = async (req, res, next) => {
 };
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
  * @param  {object} req request object
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
@@ -171,6 +171,11 @@ export const EditDepartment = async (req, res, next) => {
   }
 };
 
+/**
+ * @param  {object} req request object
+ * @param  {object} res  response object
+ * @param  {Function} next next middleware function
+ */
 export const DeleteDepartment = async (req, res, next) => {
   const { id } = req.params;
   const department = await Department.findByIdAndDelete(id);

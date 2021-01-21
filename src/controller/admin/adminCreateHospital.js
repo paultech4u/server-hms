@@ -5,11 +5,14 @@ import { validationResult } from 'express-validator';
 /**
  * @typedef {object} req
  * @typedef {object} res
+*/
+
+/**
  * @param  {object} req  request object
  * @param  {object} res  response object
  * @param  {Function} next next middleware function
  */
-const HospitalAccountReg = async function (req, res, next) {
+const createHospital = async function (req, res, next) {
   const { hospital_name, hospital_email, state, address, zip_code } = req.body;
 
   // Express validation
@@ -43,4 +46,4 @@ const HospitalAccountReg = async function (req, res, next) {
   }
 };
 
-export default HospitalAccountReg;
+export default createHospital;

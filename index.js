@@ -5,8 +5,7 @@ import bodyParser from 'body-parser';
 import { DatabaseConfig } from './src/database/config';
 
 import USER_ROUTE from './src/controller/user';
-import DEPARTMENT_ROUTE from './src/controller/departments';
-import HOSPITAL_ROUTE from './src/controller/hospital';
+import ADMIN_ROUTE from './src/controller/admin';
 
 const app = express();
 
@@ -19,8 +18,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use(USER_ROUTE);
-app.use(DEPARTMENT_ROUTE);
-app.use(HOSPITAL_ROUTE);
+app.use(ADMIN_ROUTE);
 
 // Error expection handler
 app.use((error, req, res, next) => {
