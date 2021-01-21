@@ -1,4 +1,3 @@
-// const express  = require("express");
 import { Admin } from '../../model/admin';
 import { Hospital } from '../../model/hospital';
 import { ErrorException } from '../../util/error';
@@ -62,136 +61,10 @@ export const CreateDepartment = async function (req, res, next) {
   }
 };
 
-/**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-export const GetDepartments = async function (req, res, next) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(406).json({
-      error: errors.mapped(),
-    });
-  }
-  const perPage = 5;
-  const currentPage = 1;
-  try {
-    // TODO get all document in the department collection
-    const departments = await Department.find()
-      .skip((currentPage - 1) * perPage)
-      .limit(perPage)
-      .orFail(() => {
-        // TODO throw error if department is not available
-        ErrorException(404, 'No Departments found');
-      })
-      .populate(
-        'hospital',
-        'name email state creation address admin zip_code -_id'
-      );
-    // TODO number of available departments
-    const totalDepartments = await Department.find().countDocuments();
 
-    res.status(200).json({
-      message: 'Fetched departments successful!',
-      departments: departments,
-      totalDepartments: totalDepartments,
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-  }
-};
 
-/**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-// TODO get a single department
-export const GetDepartment = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(406).json({
-      error: errors.mapped(),
-    });
-  }
-  const { id } = req.params;
-  const department = await Department.findById(id);
-  try {
-    if (!department) {
-      ErrorException(404, 'Department not found');
-    }
-    res.status(200).json({
-      message: 'Fetched department successful!',
-      department: department,
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-  }
-};
 
-/**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-export const EditDepartment = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(406).json({
-      error: errors.mapped(),
-    });
-  } // TODO check if department exists
-  // TODO send a res if department exist
-  const { id } = req.params; // department id
-  const { name, description } = req.body;
 
-  const department = await Department.findById(id).updateOne(
-    {},
-    { name: name, department: description }
-  );
-  try {
-    if (!department) {
-      ErrorException(404, 'Department not found');
-    }
-    res.status(200).json({
-      message: `Department updated`,
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-  }
-};
 
-/**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
- */
-export const DeleteDepartment = async (req, res, next) => {
-  const { id } = req.params;
-  const department = await Department.findByIdAndDelete(id);
-  try {
-    if (!department) {
-      res.status(404).json({
-        message: 'DEPARTMENT_NOT_FOUND',
-      });
-    }
-    res.status(200).json({
-      message: 'Deleted',
-    });
-  } catch (error) {
-    if (!error.status) {
-      error.status = 500;
-    }
-    next(error);
-  }
-};
+
+
