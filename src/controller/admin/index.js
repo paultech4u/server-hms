@@ -1,15 +1,13 @@
 import express from 'express';
-import { body } from 'express-validator';
+import { body, check } from 'express-validator';
 import RateLimitter from 'express-rate-limit';
-import {
-  GetDepartment,
-  EditDepartment,
-  GetDepartments,
-  DeleteDepartment,
-  CreateDepartment,
-} from './adminCreateDepartment';
-import isAuthenticated from '../../auth/authMiddleware';
+import { GetDepartment } from './adminGetDapartment';
 import adminAccountSignup from './adminAccountSignup';
+import { EditDepartment } from './adminEditDepartment';
+import { GetDepartments } from './adminGetDepartments';
+import isAuthenticated from '../../auth/authMiddleware';
+import { DeleteDepartment } from './adminDeleteDepartment';
+import { CreateDepartment } from './adminCreateDepartment';
 import createHospital from '../admin/adminCreateHospital';
 
 // Initialize a request methods and routes.

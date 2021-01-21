@@ -33,6 +33,10 @@ app.use((error, req, res, next) => {
   });
 });
 
+app.set('trust proxy', (ip) => {
+  console.log(ip);
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Listening on port ${PORT}`);
   DatabaseConfig;
