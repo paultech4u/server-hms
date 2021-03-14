@@ -1,6 +1,6 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 
 /**
  * @typedef {Request} req
@@ -14,7 +14,7 @@ import { ErrorException } from '../../util/error';
   try {
     const user = await User.findById(userID);
     if (!user) {
-      ErrorException(404, 'User not found');
+      ErrorExceptionMessage(404, 'User not found');
     }
     user.isVerified = false;
     user.save();

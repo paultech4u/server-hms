@@ -1,7 +1,7 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
 import { verifyAccessToken } from './userAccountService';
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 
 /**
  * @typedef {Request} req
@@ -15,24 +15,24 @@ const UserEmailVerification = async function (req, res, next) {
   // TODO get id token from the http query string.
   const { token } = req.query;
   if (!token) {
-    ErrorException(404, 'ID_Token not found');
+    ErrorExceptionMessage(404, 'ID_Token not found');
   }
   let decodedToken;
   try {
     // TODO verify id token.
     decodedToken = verifyAccessToken(token);
     if (!decodedToken) {
-      ErrorException(401, 'Invalid token');
+      ErrorExceptionMessage(401, 'Invalid token');
     }
     const { _id } = decodedToken;
     const user = await User.findById({ _id: _id });
     if (!user) {
-      ErrorException(404, 'User not found');
+      ErrorExceptionMessage(404, 'User not found');
     }
     user.isVerified = true;
     const [newUser] = await Promise.all([user.save()]);
     if (!newUser) {
-      ErrorException(401, 'Email not verified');
+      ErrorExceptionMessage(401, 'Email not verified');
     }
     res.status(200).json({
       message: 'Email verified',

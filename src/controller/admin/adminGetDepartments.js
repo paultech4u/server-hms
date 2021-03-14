@@ -1,4 +1,4 @@
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 import { Department } from '../../model/department';
 
@@ -28,7 +28,7 @@ export const GetDepartments = async function (req, res, next) {
       .limit(perPage)
       .orFail(() => {
         // TODO throw error if department is not available
-        ErrorException(404, 'No Departments found');
+        ErrorExceptionMessage(404, 'No Departments found');
       })
       .populate(
         'hospital',

@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../../model/user';
 import { Hospital } from '../../model/hospital';
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 import { Department } from '../../model/department';
 import { validationResult } from 'express-validator';
 import { comfirmationMSG } from '../../service/sendgrid';
@@ -49,29 +49,29 @@ const UserSignup = async function (req, res, next) {
     // @TODO check if user making this request is an admin
     const admin = await User.findById(userId);
     if (!admin) {
-      ErrorException(404, 'Admin not found');
+      ErrorExceptionMessage(404, 'Admin not found');
     }
 
     if (admin.role !== 'ADMIN') {
-      ErrorException(401, 'Unauthorised access');
+      ErrorExceptionMessage(401, 'Unauthorised access');
     }
 
     // @TODO Check if user exist
     const user = await User.findOne({ email: email });
     if (user) {
-      ErrorException(302, 'Email exists');
+      ErrorExceptionMessage(302, 'Email exists');
     }
 
     const hospital = await Hospital.findOne({ name: hospital_name });
 
     if (!hospital) {
-      ErrorException(404, 'Hospital does not exists');
+      ErrorExceptionMessage(404, 'Hospital does not exists');
     }
 
     // Query for an existing department
     const departments = await Department.findOne({ name: department_name });
     if (!departments) {
-      ErrorException(404, 'Departments does not exists');
+      ErrorExceptionMessage(404, 'Departments does not exists');
     }
 
     // Encrpyt password

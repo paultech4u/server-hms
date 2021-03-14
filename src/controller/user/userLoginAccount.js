@@ -7,7 +7,7 @@ import {
   verifyRefreshToken,
 } from './userAccountService';
 
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 
 /**
  * @typedef {object} request
@@ -27,15 +27,15 @@ const UserLogin = async function (req, res, next) {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      ErrorException(404, `${email} does not exists`);
+      ErrorExceptionMessage(404, `${email} does not exists`);
     }
     if (user.isVerified === false) {
-      ErrorException(401, `${email} not verified`);
+      ErrorExceptionMessage(401, `${email} not verified`);
     }
 
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      ErrorException(401, 'wrong password');
+      ErrorExceptionMessage(401, 'wrong password');
     }
 
     let new_reftoken = null;

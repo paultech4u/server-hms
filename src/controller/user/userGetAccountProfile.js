@@ -1,6 +1,6 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 
 /**
  * @typedef {Request} req
@@ -31,7 +31,7 @@ const UserGetProfile = async function (req, res, next) {
       .populate('department', 'name -_id')
       .exec();
     if (!user) {
-      ErrorException(404, 'User not found');
+      ErrorExceptionMessage(404, 'User not found');
     }
     res.status(200).json({ message: 'OK', user: user });
   } catch (error) {

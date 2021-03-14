@@ -1,6 +1,6 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 
 /**
  * @typedef {Request} req
@@ -14,10 +14,10 @@ const UserAccountActivation = async function (req, res, next) {
   try {
     const user = await User.findById(id);
     if (!user) {
-      ErrorException(404, 'User not found');
+      ErrorExceptionMessage(404, 'User not found');
     }
     if (user.isVerified === true) {
-      ErrorException(422, 'Account already verified');
+      ErrorExceptionMessage(422, 'Account already verified');
     }
     user.isVerified = true;
     user.save();

@@ -1,4 +1,4 @@
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 import { Department } from '../../model/department';
 
@@ -29,7 +29,7 @@ export const EditDepartment = async (req, res, next) => {
   );
   try {
     if (!department) {
-      ErrorException(404, 'Department not found');
+      ErrorExceptionMessage(404, 'Department not found');
     }
     res.status(200).json({
       message: `Department updated`,

@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { User } from '../../model/user';
 import { Admin } from '../../model/admin';
 import { Hospital } from '../../model/hospital';
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 
 /**
@@ -43,20 +43,20 @@ const adminAccountSignup = async function (req, res, next) {
     // Check if user exist
     const user = await User.findOne({ email: email });
     if (user) {
-      ErrorException(302, 'Email exists');
+      ErrorExceptionMessage(302, 'Email exists');
     }
 
     const hospitals = await Hospital.findOne({ name: hospital_name });
 
     if (!hospitals) {
-      ErrorException(404, 'Hospital does not exists');
+      ErrorExceptionMessage(404, 'Hospital does not exists');
     }
 
     const hashed_password = await bcrypt.hash(password, 10);
 
     // Query for admin role type if it has admin role type.
     if (role !== admin_role_types.find((values) => values === role)) {
-      ErrorException(400, 'Role provided cannot be an admin');
+      ErrorExceptionMessage(400, 'Role provided cannot be an admin');
     }
     new_user = new User({
       email,

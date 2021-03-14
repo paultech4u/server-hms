@@ -1,6 +1,6 @@
 import { Admin } from '../../model/admin';
 import { Hospital } from '../../model/hospital';
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 import { Department } from '../../model/department';
 
@@ -29,17 +29,17 @@ export const CreateDepartment = async function (req, res, next) {
     // TODO extract admin id from hospital
     const hospitals = await Hospital.findOne({ name: hospital });
     if (!hospitals) {
-      ErrorException(404, 'Hospital not found');
+      ErrorExceptionMessage(404, 'Hospital not found');
     }
     if (hospitals.admin !== id) {
-      if (admin.isAdmin !== true) ErrorException(401, 'Unauthorized');
+      if (admin.isAdmin !== true) ErrorExceptionMessage(401, 'Unauthorized');
     }
     const department = await Department.findOne({
       name: name,
     });
     // TODO check for an exiting department
     if (department) {
-      ErrorException(302, 'Department exists');
+      ErrorExceptionMessage(302, 'Department exists');
     }
     const newDepartment = new Department({
       name: name,

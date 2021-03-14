@@ -6,7 +6,7 @@ import {
   verifyRefreshToken,
 } from './userAccountService';
 
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 
 /**
  * @typedef {object} request
@@ -24,13 +24,13 @@ const RefreshToken = async function (req, res, next) {
   const { userId } = req;
   try {
     if (!userId) {
-      ErrorException(401, 'No Id');
+      ErrorExceptionMessage(401, 'No Id');
     }
 
     const user = await User.findById(userId);
 
     if (!user.refToken) {
-      ErrorException(404, 'No token present');
+      ErrorExceptionMessage(404, 'No token present');
     }
 
     let new_reftoken = null;

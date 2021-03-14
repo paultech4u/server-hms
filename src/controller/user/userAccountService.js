@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { ErrorException } from '../../util/error';
+import { ErrorExceptionMessage } from '../../util/error';
 
 const { JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY } = process.env;
 
@@ -18,7 +18,7 @@ export const signAccessToken = (userId, payload) => {
     });
     return accessToken;
   } catch (err) {
-    ErrorException(422, 'Unprocessable entity');
+    ErrorExceptionMessage(422, 'Unprocessable entity');
   }
 };
 
@@ -32,7 +32,7 @@ export const verifyAccessToken = (token) => {
     const accessToken = jwt.verify(token, JWT_SECRET_KEY);
     return accessToken;
   } catch (error) {
-    ErrorException(406, 'Token expired');
+    ErrorExceptionMessage(406, 'Token expired');
   }
 };
 
@@ -52,7 +52,7 @@ export const signRefreshToken = (userId, payload) => {
     });
     return refreshToken;
   } catch (error) {
-    ErrorException(422, 'Unprocessable entity');
+    ErrorExceptionMessage(422, 'Unprocessable entity');
   }
 };
 

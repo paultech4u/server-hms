@@ -5,7 +5,7 @@
  * 
  * @author Paultech4u
  */
-export function ErrorException(status, msg) {
+export function ErrorExceptionMessage(status, msg) {
   const error = new Error(msg);
   error.status = status;
   throw error;
