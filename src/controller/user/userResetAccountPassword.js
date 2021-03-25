@@ -3,7 +3,7 @@ import { User } from '../../model/user';
 import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 
-const UserResetPassword = async function (req, res, next) {
+async function resetUserPassword(req, res, next) {
   const { userID } = req;
   const { newPassword } = req.body;
   const errors = validationResult(req);
@@ -39,4 +39,4 @@ const UserResetPassword = async function (req, res, next) {
   }
 };
 
-export default UserResetPassword;
+export default resetUserPassword;

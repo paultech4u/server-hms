@@ -10,7 +10,7 @@ import { DeleteDepartment } from './adminDeleteDepartment';
 import { CreateDepartment } from './adminCreateDepartment';
 import createHospital from '../admin/adminCreateHospital';
 
-// Initialize a request methods and routes.
+// Initialized the requests methods and routes.
 const router = express.Router();
 
 /**

@@ -1,17 +1,17 @@
 import express from 'express';
-import UserLogin from './userLoginAccount';
-import UserDelete from './userDeleteAccount';
-import UserSignup from './userAccountSignup';
+import loginUser from './userLoginAccount';
+import deleteUser from './userDeleteAccount';
+import addNewUser from './userAccountSignup';
 import { uploads } from '../../service/multer';
 import { body, check } from 'express-validator';
-import UserGetProfile from './userGetAccountProfile';
-import RefreshToken from './userRefreshAccountTokens';
+import getUserProfile from './userGetAccountProfile';
+import refreshToken from './userRefreshAccountTokens';
 import isAuthenticated from '../../auth/authMiddleware';
-import UserResetPassword from './userResetAccountPassword';
-import UserForgetPassword from './userForgetAccountPassword';
-import UserAccountDeactivation from './userDeactivateAccount';
-import UserEmailVerification from './userAccountVerification';
-import { UploadProfilePicture } from './userAccountUploadProfilePicture';
+import resetUserPassword from './userResetAccountPassword';
+import userForgetPassword from './userForgetAccountPassword';
+import deactivateUserAccount from './userDeactivateAccount';
+import verifyUserEmail from './userAccountVerification';
+import { uploadProfileAvatar } from './userAccountUploadProfilePicture';
 
 // Initialize a request methods and routes.
 const router = express.Router();
@@ -44,7 +44,7 @@ router.post(
     body(['username', 'department']).trim(),
   ],
 
-  UserSignup
+  addNewUser
 );
 
 /**
@@ -52,7 +52,7 @@ router.post(
  * @access Public
  * @endpoints /api/confirm-email
  */
-router.get('/user/confirm-email', UserEmailVerification);
+router.get('/user/confirm-email', verifyUserEmail);
 
 /**
  * @method POST
@@ -62,7 +62,7 @@ router.get('/user/confirm-email', UserEmailVerification);
 router.post(
   '/user/login',
   check('email').not().isEmpty().normalizeEmail().trim(),
-  UserLogin
+  loginUser
 );
 
 /**
@@ -71,14 +71,14 @@ router.post(
  * @access Private
  * @endpoints /api/get-profile
  */
-router.get('/user/get-profile', isAuthenticated, UserGetProfile);
+router.get('/user/get-profile', isAuthenticated, getUserProfile);
 
 /**
  * @method POST
  * @access Public
  * @endpoints /api/refresh-token
  */
-router.post('/refresh', isAuthenticated, RefreshToken);
+router.post('/refresh', isAuthenticated, refreshToken);
 
 /**
  * @private
@@ -86,7 +86,7 @@ router.post('/refresh', isAuthenticated, RefreshToken);
  * @access Private
  * @endpoints /api/deactivate
  */
-router.put('/user/deactivate', isAuthenticated, UserAccountDeactivation);
+router.put('/user/deactivate', isAuthenticated, deactivateUserAccount);
 
 /**
  * @method PUT
@@ -97,7 +97,7 @@ router.put(
   '/user/reset-password',
   [body('password').not().isEmpty().isLength({ max: 30, min: 8 }).trim()],
   isAuthenticated,
-  UserResetPassword
+  resetUserPassword
 );
 
 /**
@@ -109,13 +109,18 @@ router.post(
   '/forget-password',
   [
     body('email').isEmail().withMessage('must be an email'),
-    body('password')
+    body('password1')
       .not()
       .isEmpty()
       .trim()
       .withMessage('must contain a character value'),
+      body('password2')
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage('must contain a character value')
   ],
-  UserForgetPassword
+  userForgetPassword
 );
 
 /**
@@ -127,7 +132,7 @@ router.put(
   '/user/profile',
   uploads.single('avatar'),
   isAuthenticated,
-  UploadProfilePicture
+  uploadProfileAvatar
 );
 
 /**
@@ -135,6 +140,6 @@ router.put(
  * @access Private
  * @endpoints /api/delete/:token
  */
-router.delete('/user/delete', isAuthenticated, UserDelete);
+router.delete('/user/delete', isAuthenticated, deleteUser);
 
 export default router;

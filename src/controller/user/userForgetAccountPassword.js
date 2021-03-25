@@ -18,7 +18,7 @@ import { validationResult } from 'express-validator';
  * @param  {Function} next next middleware function
  * @author  Paulsimon Edache
  */
-const UserForgetPassword = async function (req, res, next) {
+const userForgetPassword = async function (req, res, next) {
   const { password1, password2, email } = req.body;
   const errors = validationResult(req);
   try {
@@ -37,6 +37,14 @@ const UserForgetPassword = async function (req, res, next) {
     if (user.isVerified == false) {
       ErrorExceptionMessage(404, `${email} your email is not verified`);
     }
+
+    if(password1 !== password2){
+      ErrorExceptionMessage(
+        406,
+        'password not match'
+      );
+    }
+
     const isMatch = await bcrypt.compare(password1, user.password);
     if (isMatch) {
       ErrorExceptionMessage(
@@ -45,18 +53,11 @@ const UserForgetPassword = async function (req, res, next) {
       );
     }
 
-    if(password1 !== password2){
-      ErrorExceptionMessage(
-        406,
-        'password did not match'
-      );
-    }
-
     const payload = {
       id: user.id,
     };
 
-    const hash_password = await bcrypt.hash(password, 10);
+    const hash_password = await bcrypt.hash(password1, 10);
     const accessToken = signAccessToken(user.id, payload);
     const verifyIdToken = verifyAccessToken(accessToken);
     const refreshToken = signRefreshToken(user.id, payload);
@@ -87,4 +88,4 @@ const UserForgetPassword = async function (req, res, next) {
   }
 };
 
-export default UserForgetPassword;
+export default userForgetPassword;

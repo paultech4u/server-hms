@@ -15,7 +15,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {Function} next next middleware function
  * @author  Paulsimon Edache
  */
-const UserDelete = async function (req, res, next) {
+async function deleteUser(req, res, next) {
   const { Id } = req.query;
   const { userId } = req;
 
@@ -54,4 +54,4 @@ const UserDelete = async function (req, res, next) {
   }
 };
 
-export default UserDelete;
+export default deleteUser;

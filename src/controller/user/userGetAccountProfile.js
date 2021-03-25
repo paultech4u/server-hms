@@ -9,7 +9,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {object} res response object
  * @param  {Function} next next middleware function
  */
-const UserGetProfile = async function (req, res, next) {
+const getUserProfile = async function (req, res, next) {
   // TODO get a user profile payload from an authorization token
   // TODO if user is authenticated.
   const { userId } = req;
@@ -43,4 +43,4 @@ const UserGetProfile = async function (req, res, next) {
   }
 };
 
-export default UserGetProfile;
+export default getUserProfile;

@@ -20,7 +20,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {Function} next next middleware function
  * @author  Paulsimon Edache
  */
-const RefreshToken = async function (req, res, next) {
+async function refreshToken(req, res, next) {
   const { userId } = req;
   try {
     if (!userId) {
@@ -74,4 +74,4 @@ const RefreshToken = async function (req, res, next) {
   }
 };
 
-export default RefreshToken;
+export default refreshToken;

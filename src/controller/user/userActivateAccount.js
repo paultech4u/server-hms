@@ -9,7 +9,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {object} res response object
  * @param  {Function} next next middleware function
  */
-const UserAccountActivation = async function (req, res, next) {
+async function activateUserAccount(req, res, next) {
   const { id } = req.params;
   try {
     const user = await User.findById(id);
@@ -27,4 +27,4 @@ const UserAccountActivation = async function (req, res, next) {
   } catch (error) {}
 };
 
-export default UserAccountActivation;
+export default activateUserAccount;

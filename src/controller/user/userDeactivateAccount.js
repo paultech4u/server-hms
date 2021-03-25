@@ -9,7 +9,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {object} res  response object
  * @param  {Function} next  next middleware function
  */
- const UserAccountDeactivation = async function (req, res, next) {
+async function deactivateUserAccount(req, res, next) {
   const { userID } = req.body;
   try {
     const user = await User.findById(userID);
@@ -30,5 +30,5 @@ import { ErrorExceptionMessage } from '../../util/error';
 };
 
 
-export default UserAccountDeactivation;
+export default deactivateUserAccount;
 

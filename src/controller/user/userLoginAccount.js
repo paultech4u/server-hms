@@ -21,7 +21,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {Function} next next middleware function
  * @author  Paulsimon Edache
  */
-const UserLogin = async function (req, res, next) {
+async function loginUser(req, res, next) {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email: email });
@@ -57,12 +57,13 @@ const UserLogin = async function (req, res, next) {
         user_id: user._id,
         email: user.email,
         id_token: accessToken,
-        refToken: new_reftoken,
         username: user.username,
         expires_in: verifyIdToken.exp,
       });
     }
 
+
+    
     if (verifyRefToken.error) {
       if (verifyRefToken.error.message === 'jwt expired' || !user.refToken) {
         new_reftoken = signRefreshToken(user._id, payload);
@@ -73,7 +74,6 @@ const UserLogin = async function (req, res, next) {
           user_id: user._id,
           email: user.email,
           id_token: accessToken,
-          refToken: new_reftoken,
           username: user.username,
           expires_in: verifyIdToken.exp,
         });
@@ -85,7 +85,6 @@ const UserLogin = async function (req, res, next) {
       user_id: user._id,
       email: user.email,
       id_token: accessToken,
-      refToken: user.refToken,
       username: user.username,
       expires_in: verifyIdToken.exp,
     });
@@ -97,4 +96,4 @@ const UserLogin = async function (req, res, next) {
   }
 };
 
-export default UserLogin;
+export default loginUser;

@@ -2,7 +2,7 @@ import fs from 'fs';
 import { User } from '../../model/user';
 import { SaveToClouds } from '../../service/cloudinary';
 
-export const UploadProfilePicture = async function (req, res, next) {
+export async function uploadProfileAvatar(req, res, next) {
   const imageUrl = req.file;
   const { userID } = req;
   try {
@@ -39,6 +39,6 @@ export const UploadProfilePicture = async function (req, res, next) {
   }
 };
 
-export const getProfilePicture = function (req, res, next) {};
+export const getProfileAvatar = function (req, res, next) {};
 
-export const ChangeProfilePicture = function (req, res, next) {};
+export const changeProfileAvatar = function (req, res, next) {};

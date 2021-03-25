@@ -22,7 +22,7 @@ const { JWT_SECRET_KEY } = process.env;
  * @param  {response} res  response object
  * @param  {Function} next next middleware function
  */
-const UserSignup = async function (req, res, next) {
+async function addNewUser(req, res, next) {
   const {
     role,
     email,
@@ -109,4 +109,4 @@ const UserSignup = async function (req, res, next) {
   }
 };
 
-export default UserSignup;
+export default addNewUser;

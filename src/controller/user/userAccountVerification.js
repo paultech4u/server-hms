@@ -10,7 +10,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {object} res response object
  * @param  {Function} next next middleware function
  */
-const UserEmailVerification = async function (req, res, next) {
+async function verifyUserEmail(req, res, next) {
   // TODO verify a new user account
   // TODO get id token from the http query string.
   const { token } = req.query;
@@ -47,4 +47,4 @@ const UserEmailVerification = async function (req, res, next) {
   }
 };
 
-export default UserEmailVerification;
+export default verifyUserEmail;
