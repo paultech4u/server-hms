@@ -10,19 +10,20 @@ import { comfirmationMSG } from '../../service/sendgrid';
 const { JWT_SECRET_KEY } = process.env;
 
 /**
- * @global
- * @typedef {object} request
- * @typedef {object} response
- * @author  Paulsimon Edache
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ * 
  */
 
 /**
  
- * @param  {request} req request object
- * @param  {response} res  response object
- * @param  {Function} next next middleware function
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next function
  */
 async function addNewUser(req, res, next) {
+  // request body
   const {
     role,
     email,
@@ -37,7 +38,7 @@ async function addNewUser(req, res, next) {
 
   const { userId } = req;
 
-  // Express validator errors
+  // Performs checks for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(406).json({
@@ -47,12 +48,12 @@ async function addNewUser(req, res, next) {
 
   try {
     // @TODO check if user making this request is an admin
-    const admin = await User.findById(userId);
-    if (!admin) {
+    const isUserAdmin = await User.findById(userId);
+    if (!isUserAdmin) {
       ErrorExceptionMessage(404, 'Admin not found');
     }
 
-    if (admin.role !== 'ADMIN') {
+    if (isUserAdmin.role !== 'ADMIN') {
       ErrorExceptionMessage(401, 'Unauthorised access');
     }
 
@@ -74,15 +75,15 @@ async function addNewUser(req, res, next) {
       ErrorExceptionMessage(404, 'Departments does not exists');
     }
 
-    // Encrpyt password
-    const hashed_password = await bcrypt.hash(password, 10);
+    // Encrpyt user password
+    const encrpyt_pass = await bcrypt.hash(password, 10);
 
     const new_user = new User({
       email,
       firstname,
       lastname,
       username,
-      password: hashed_password,
+      password: encrpyt_pass,
       phone_number,
       role: role,
       hospital: hospital._id,

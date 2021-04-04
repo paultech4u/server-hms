@@ -17,6 +17,7 @@ const fileFilter = function (req, file, cb) {
   }
 };
 
+// file maximum size 
 const MAX_FILE_SIZE = 1024 * 1024;
 
 export const uploads = multer({

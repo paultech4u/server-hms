@@ -5,10 +5,15 @@ const { JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY } = process.env;
 
 /**
  *
- * @returns {string} string
- * @typedef {object} ObjectLike
- * @param {string} userId userId
- * @param {ObjectLike} payload user info
+ * 
+ * @typedef {{}} ObjectLike
+ * @typedef {{}} string
+ */
+
+/** 
+ * @param {string} userId string
+ * @param {ObjectLike} payload object
+ * @returns {string}
  */
 export const signAccessToken = (userId, payload) => {
   try {
@@ -23,9 +28,13 @@ export const signAccessToken = (userId, payload) => {
 };
 
 /**
- *
+ * 
+ * @typedef {{}} token
+ */
+
+/**
+ * @param {(string)} token access_token
  * @returns {(string|object)} string | object
- * @param {(string)} token Id_Token
  */
 export const verifyAccessToken = (token) => {
   try {
@@ -36,13 +45,19 @@ export const verifyAccessToken = (token) => {
   }
 };
 
+
 /**
- * Returns a new sign Refresh_Token
- * which is used to generate in generating a new ID_Token
+ * 
+ * @typedef {{}} ObjectLike
+ * @typedef {{}} userId
+ */
+
+/**
+ * Returns a new sign refresh_token,
+ * will sign a new refresh_token when expired
  * @returns {string} string
- * @typedef {object} ObjectLike
- * @param {ObjectLike} payload user info
- * @param {(string|number)} userId user id
+ * @param {ObjectLike} payload 
+ * @param {(string|number)} userId 
  */
 export const signRefreshToken = (userId, payload) => {
   try {
@@ -59,7 +74,8 @@ export const signRefreshToken = (userId, payload) => {
 /**
  *
  * @returns {(string|object)} string | object
- * @param {string} refreshToken a new refresh token
+ * @typedef {{}} refresh_token
+ * @param {string} refreshToken
  */
 
 export const verifyRefreshToken = (refreshToken) => {

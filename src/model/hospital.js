@@ -20,7 +20,7 @@ const HOSPITAL_SCHEMA = new Schema(
       type: String,
       required: false,
     },
-    zip_code: {
+    zip_no: {
       type: Number,
       required: false,
     },

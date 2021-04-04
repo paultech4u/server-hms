@@ -19,10 +19,10 @@ const router = express.Router();
 /**
  * @method POST
  * @access Public
- * @endpoints /api/signup
+ * @endpoints /api/add-account
  */
 router.post(
-  '/user/signup',
+  '/user/add-account',
   [
     body('email')
       .not()

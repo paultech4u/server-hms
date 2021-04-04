@@ -2,9 +2,24 @@ import fs from 'fs';
 import { User } from '../../model/user';
 import { SaveToClouds } from '../../service/cloudinary';
 
+
+/**
+ * 
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ */
+
+/**
+ * 
+ * @param {Request} req 
+ * @param {Response} res 
+ * @param {NextFunction} next 
+ */
+
 export async function uploadProfileAvatar(req, res, next) {
   const imageUrl = req.file;
-  const { userID } = req;
+  const { userId } = req;
   try {
     // TODO check if user exist
     const user = await User.findById(userID);
@@ -12,7 +27,7 @@ export async function uploadProfileAvatar(req, res, next) {
       ErrorException(404, 'User does not exists');
     }
 
-    // cloudinary file uploader api
+    // upload the image file to cloudinary 
     const uploadImageToCloud = async function (path) {
       const result = await SaveToClouds(path, 'Images');
       return result;

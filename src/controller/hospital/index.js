@@ -1,14 +1,14 @@
 import express from 'express';
 import { body, check } from 'express-validator';
 import RateLimitter from 'express-rate-limit';
+import addNewHospital from './addNewHospital';
 import { GetDepartment } from './adminGetDapartment';
-import adminAccountSignup from './adminAccountSignup';
+import addNewHospitalAdmin from './addNewHospitalAdmin';
 import { EditDepartment } from './adminEditDepartment';
 import { GetDepartments } from './adminGetDepartments';
 import isAuthenticated from '../../auth/authMiddleware';
 import { DeleteDepartment } from './adminDeleteDepartment';
 import { CreateDepartment } from './adminCreateDepartment';
-import createHospital from '../admin/adminCreateHospital';
 
 // Initialized the requests methods and routes.
 const router = express.Router();
@@ -16,10 +16,10 @@ const router = express.Router();
 /**
  * @method POST
  * @access Private
- * @endpoints /api/signup
+ * @endpoints /api/signup?role=admin
  */
 router.post(
-  '/admin/signup',
+  '/hospital/signup',
   [
     body('email')
       .not()
@@ -33,19 +33,19 @@ router.post(
       .not()
       .isEmpty()
       .trim(),
-    body(['role', 'firstname', 'lastname'])
+    body(['firstname', 'lastname'])
       .not()
       .isEmpty()
       .trim()
       .withMessage('must contain a character'),
     body(['username']).trim(),
   ],
-  adminAccountSignup
+  addNewHospitalAdmin
 );
 
 // Hospital APIs
 
-const register_ratelimit = RateLimitter({
+const register_ratelimiter = RateLimitter({
   windowMs: 3 * 60 * 1000,
   max: 5,
   message: 'To many requests sents',
@@ -59,12 +59,12 @@ const register_ratelimit = RateLimitter({
 router.post(
   '/register',
   [
-    body('hospital_email').isEmail(),
-    body('zip_code').isNumeric().trim(),
-    body(['hospital_name', 'state', 'address']).trim(),
+    body('email').isEmail(),
+    body('zip_no').isNumeric().trim(),
+    body(['name', 'state', 'address']).trim(),
   ],
-  register_ratelimit,
-  createHospital
+  register_ratelimiter,
+  addNewHospital
 );
 
 // Department APIs

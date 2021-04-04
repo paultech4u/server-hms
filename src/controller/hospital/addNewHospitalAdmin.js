@@ -6,18 +6,18 @@ import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 
 /**
- * @typedef {object} req
- * @typedef {object} res
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
  */
 
 /**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
+ * @param  {Request} req object
+ * @param  {Response} res   object
+ * @param  {NextFunction} next function
  */
-const adminAccountSignup = async function (req, res, next) {
+async function addNewHospitalAdmin(req, res, next) {
   const {
-    role,
     email,
     lastname,
     username,
@@ -27,7 +27,9 @@ const adminAccountSignup = async function (req, res, next) {
     hospital_name,
   } = req.body;
 
-  // Express validator errors
+  const { role } = req.query;
+
+  // Performs checks for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(406).json({
@@ -40,7 +42,7 @@ const adminAccountSignup = async function (req, res, next) {
     let new_admin = null;
     let admin_role_types = ['Admin', 'ADMIN', 'admin'];
 
-    // Check if user exist
+    // check for an existing user
     const user = await User.findOne({ email: email });
     if (user) {
       ErrorExceptionMessage(302, 'Email exists');
@@ -52,9 +54,9 @@ const adminAccountSignup = async function (req, res, next) {
       ErrorExceptionMessage(404, 'Hospital does not exists');
     }
 
-    const hashed_password = await bcrypt.hash(password, 10);
+    const encrpyt_pass = await bcrypt.hash(password, 10);
 
-    // Query for admin role type if it has admin role type.
+    // preform checks for valid admin role type
     if (role !== admin_role_types.find((values) => values === role)) {
       ErrorExceptionMessage(400, 'Role provided cannot be an admin');
     }
@@ -63,7 +65,7 @@ const adminAccountSignup = async function (req, res, next) {
       firstname,
       lastname,
       username,
-      password: hashed_password,
+      password: encrpyt_pass,
       phone_number,
       role: role,
       isAdmin: true,
@@ -86,6 +88,6 @@ const adminAccountSignup = async function (req, res, next) {
     next(error);
     return error;
   }
-};
+}
 
-export default adminAccountSignup;
+export default addNewHospitalAdmin;

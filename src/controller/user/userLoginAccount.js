@@ -6,20 +6,21 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
 } from './userAccountService';
-
 import { ErrorExceptionMessage } from '../../util/error';
 
 /**
- * @typedef {object} request
- * @typedef {object} response
  *
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
  */
 
 /**
- * @param  {request} req request object
- * @param  {response} res  response object
- * @param  {Function} next next middleware function
- * @author  Paulsimon Edache
+ *
+ * @param  {Request} req
+ * @param  {Response} res
+ * @param  {NextFunction} next
+ *
  */
 async function loginUser(req, res, next) {
   const { email, password } = req.body;
@@ -44,26 +45,11 @@ async function loginUser(req, res, next) {
       id: user.id,
     };
 
+    // check if user refresh token is valid
     const verifyRefToken = verifyRefreshToken(user.refToken);
     const accessToken = signAccessToken(user._id, payload);
     const verifyIdToken = verifyAccessToken(accessToken);
 
-    if (!user.refToken) {
-      new_reftoken = signRefreshToken(user._id, payload);
-      user.refToken = new_reftoken;
-      await user.save();
-      return res.status(200).json({
-        message: 'Ok',
-        user_id: user._id,
-        email: user.email,
-        id_token: accessToken,
-        username: user.username,
-        expires_in: verifyIdToken.exp,
-      });
-    }
-
-
-    
     if (verifyRefToken.error) {
       if (verifyRefToken.error.message === 'jwt expired' || !user.refToken) {
         new_reftoken = signRefreshToken(user._id, payload);
@@ -71,20 +57,31 @@ async function loginUser(req, res, next) {
         await user.save();
         return res.status(200).json({
           message: 'Ok',
-          user_id: user._id,
           email: user.email,
-          id_token: accessToken,
+          access_token: accessToken,
           username: user.username,
           expires_in: verifyIdToken.exp,
         });
       }
     }
 
+    if (!user.refToken) {
+      new_reftoken = signRefreshToken(user._id, payload);
+      user.refToken = new_reftoken;
+      await user.save();
+      return res.status(200).json({
+        message: 'Ok',
+        email: user.email,
+        access_token: accessToken,
+        username: user.username,
+        expires_in: verifyIdToken.exp,
+      });
+    }
+
     return res.status(200).json({
       message: 'Ok',
-      user_id: user._id,
       email: user.email,
-      id_token: accessToken,
+      access_token: accessToken,
       username: user.username,
       expires_in: verifyIdToken.exp,
     });
@@ -94,6 +91,6 @@ async function loginUser(req, res, next) {
     }
     next(error);
   }
-};
+}
 
 export default loginUser;

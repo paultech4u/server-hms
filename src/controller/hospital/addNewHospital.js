@@ -3,19 +3,20 @@ import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 
 /**
- * @typedef {object} req
- * @typedef {object} res
-*/
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ */
 
 /**
- * @param  {object} req  request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next fucntion
  */
-const createHospital = async function (req, res, next) {
-  const { hospital_name, hospital_email, state, address, zip_code } = req.body;
+async function addNewHospital(req, res, next) {
+  const { name, email, state, address, zip_no } = req.body;
 
-  // Express validation
+  // handle express validation error
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(406).json({
@@ -23,16 +24,16 @@ const createHospital = async function (req, res, next) {
     });
   }
   try {
-    const hospital = await Hospital.findOne({ name: hospital_name });
+    const hospital = await Hospital.findOne({ name: name });
     if (hospital) {
       ErrorExceptionMessage(404, 'Hospital  exist');
     }
     const new_hospital = new Hospital({
-      name: hospital_name,
-      email: hospital_email,
+      name,
+      email,
       state,
       address,
-      zip_code,
+      zip_no,
     });
     new_hospital.save();
     return res.status(201).json({
@@ -44,6 +45,6 @@ const createHospital = async function (req, res, next) {
     }
     next(error);
   }
-};
+}
 
-export default createHospital;
+export default addNewHospital;
