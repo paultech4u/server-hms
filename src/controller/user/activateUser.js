@@ -13,7 +13,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  
  * @param  {Request} req object
  * @param  {Response} res object
- * @param  {NextFunction} next function
+ * @param  {NextFunction} next middleware function
  */
 async function activateUser(req, res, next) {
   const { id } = req.params;

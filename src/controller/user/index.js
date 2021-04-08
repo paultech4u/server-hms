@@ -23,7 +23,7 @@ const router = express.Router();
  * @endpoints /api/add-user
  */
 router.post(
-  '/user/add-user',
+  '/add-user',
   [
     body('email')
       .not()
@@ -53,7 +53,7 @@ router.post(
  * @access Public
  * @endpoints /api/confirm-email
  */
-router.get('/user/confirm-email', verifyUserEmail);
+router.get('/confirm-email', verifyUserEmail);
 
 /**
  * @method POST
@@ -61,7 +61,7 @@ router.get('/user/confirm-email', verifyUserEmail);
  * @endpoints /api/login
  */
 router.post(
-  '/user/login',
+  '/login',
   check('email').not().isEmpty().normalizeEmail().trim(),
   loginUser
 );
@@ -72,7 +72,7 @@ router.post(
  * @access Private
  * @endpoints /api/get-profile
  */
-router.get('/user/get-profile', isAuthenticated, getUserProfileDetails);
+router.get('/get-profile', isAuthenticated, getUserProfileDetails);
 
 /**
  * @method POST
@@ -87,7 +87,7 @@ router.post('/refresh', isAuthenticated, refreshToken);
  * @access Private
  * @endpoints /api/deactivate/:id
  */
-router.put('/user/deactivate/:id', isAuthenticated, deactivateUser);
+router.put('/deactivate/:id', isAuthenticated, deactivateUser);
 
 /**
  * @private
@@ -95,7 +95,7 @@ router.put('/user/deactivate/:id', isAuthenticated, deactivateUser);
  * @access Private
  * @endpoints /api/activate/:id
  */
-router.put('/user/activate/:id', isAuthenticated, activateUser);
+router.put('/activate/:id', isAuthenticated, activateUser);
 
 /**
  * @method PUT
@@ -103,7 +103,7 @@ router.put('/user/activate/:id', isAuthenticated, activateUser);
  * @endpoints /api/reset-password
  */
 router.put(
-  '/user/reset-password',
+  '/reset-password',
   [body('password').not().isEmpty().isLength({ max: 30, min: 8 }).trim()],
   isAuthenticated,
   resetUserPassword
@@ -138,7 +138,7 @@ router.post(
  * @endpoints /api/upload-image
  */
 router.post(
-  '/user/upload-image',
+  '/upload-image',
   uploads.single('avatar'),
   isAuthenticated,
   uploadProfilePicture
@@ -149,6 +149,6 @@ router.post(
  * @access Private
  * @endpoints /api/delete/:token
  */
-router.delete('/user/delete', isAuthenticated, deleteUser);
+router.delete('/delete', isAuthenticated, deleteUser);
 
 export default router;

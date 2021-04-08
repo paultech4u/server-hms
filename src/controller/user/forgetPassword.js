@@ -26,7 +26,7 @@ async function forgetPassword(req, res, next) {
   const { password1, password2, email } = req.body;
   const errors = validationResult(req);
 
-  //  perform checks for validation error
+   // handle express validation error
   if (!errors.isEmpty()) {
     res.status(406).json({
       error: errors.mapped(),

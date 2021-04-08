@@ -11,7 +11,7 @@ import { validationResult } from 'express-validator';
 /**
  * @param  {Request} req object
  * @param  {Response} res object
- * @param  {NextFunction} next fucntion
+ * @param  {NextFunction} next middleware fucntion
  */
 async function addNewHospital(req, res, next) {
   const { name, email, state, address, zip_no } = req.body;

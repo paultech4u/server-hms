@@ -8,7 +8,7 @@ async function resetUserPassword(req, res, next) {
   const { newPassword } = req.body;
   const errors = validationResult(req);
 
-  // performs checks for validation errors
+   // handle express validation error
   if (!errors.isEmpty()) {
     res.status(406).json({
       error: errors.mapped(),

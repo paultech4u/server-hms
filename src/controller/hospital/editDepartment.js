@@ -21,7 +21,7 @@ async function editDepartment(req, res, next) {
   const { name, description } = req.body;
   const errors = validationResult(req);
 
-  // perform checks for validation error
+   // handle express validation error
   if (!errors.isEmpty()) {
     res.status(406).json({
       error: errors.mapped(),

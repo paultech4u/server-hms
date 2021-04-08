@@ -20,7 +20,7 @@ async function getDepartment(req, res, next) {
   const { id } = req.params;
   const errors = validationResult(req);
 
-  // perform checks for validation error
+   // handle express validation error
   if (!errors.isEmpty()) {
     res.status(406).json({
       error: errors.mapped(),

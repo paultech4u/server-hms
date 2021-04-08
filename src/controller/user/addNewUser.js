@@ -38,7 +38,7 @@ async function addNewUser(req, res, next) {
 
   const { userId } = req;
 
-  // performs checks for validation errors
+  // handle express validation error
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(406).json({
