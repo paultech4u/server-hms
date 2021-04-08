@@ -4,40 +4,54 @@ import { verifyAccessToken } from './userAccountService';
 import { ErrorExceptionMessage } from '../../util/error';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req request object
- * @param  {object} res response object
- * @param  {Function} next next middleware function
+ *
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ */
+
+/**
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next  middleware function
  */
 async function verifyUserEmail(req, res, next) {
-  // TODO verify a new user account
-  // TODO get id token from the http query string.
+  // @TODO verify a new user account
+  // Get access-token from the request query string.
   const { token } = req.query;
+
   if (!token) {
-    ErrorExceptionMessage(404, 'ID_Token not found');
+    ErrorExceptionMessage(404, 'access_token not found');
   }
+
   let decodedToken;
+
   try {
-    // TODO verify id token.
+    // verify id token.
     decodedToken = verifyAccessToken(token);
     if (!decodedToken) {
       ErrorExceptionMessage(401, 'Invalid token');
     }
+
     const { _id } = decodedToken;
     const user = await User.findById({ _id: _id });
+
+    // throw error if no user
     if (!user) {
       ErrorExceptionMessage(404, 'User not found');
     }
+
+    // verify the user
     user.isVerified = true;
-    const [newUser] = await Promise.all([user.save()]);
-    if (!newUser) {
-      ErrorExceptionMessage(401, 'Email not verified');
-    }
+
+    // update the user
+    const newUser = user.save();
+   
     res.status(200).json({
       message: 'Email verified',
       payload: newUser,
     });
+    
   } catch (error) {
     if (!error.status) {
       error.status = 500;
@@ -45,6 +59,6 @@ async function verifyUserEmail(req, res, next) {
     next(error);
     return error;
   }
-};
+}
 
 export default verifyUserEmail;

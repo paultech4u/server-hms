@@ -9,26 +9,30 @@ import {
 import { ErrorExceptionMessage } from '../../util/error';
 
 /**
- * @typedef {object} request
- * @typedef {object} response
  *
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
  */
 
 /**
- * @param  {request} req request object
- * @param  {response} res  response object
- * @param  {Function} next next middleware function
- * @author  Paulsimon Edache
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next  middleware function
  */
 async function refreshToken(req, res, next) {
+  // user uuid 
   const { userId } = req;
+
   try {
+
     if (!userId) {
-      ErrorExceptionMessage(401, 'No Id');
+      ErrorExceptionMessage(401, 'uuid unavailable');
     }
 
     const user = await User.findById(userId);
 
+    // check if user has refresh token
     if (!user.refToken) {
       ErrorExceptionMessage(404, 'No token present');
     }
@@ -43,6 +47,7 @@ async function refreshToken(req, res, next) {
     const accessToken = signAccessToken(userId, payload);
     const verifyIdToken = verifyAccessToken(accessToken);
 
+    // condition for no refresh token
     if (!verifyRefToken) {
       if (verifyRefToken.error.message === 'jwt expired') {
         new_reftoken = signRefreshToken(user._id, payload);
@@ -53,18 +58,17 @@ async function refreshToken(req, res, next) {
         return res.status(200).json({
           message: 'Ok',
           expires_in: verifyIdToken.exp,
-          refresh_token: newUserReftoken,
-          id_token: verifyIdToken,
+          access_token: verifyIdToken,
         });
       }
     } else {
       return res.status(200).json({
         message: 'Ok',
         expires_in: verifyIdToken.exp,
-        refresh_token: user.refToken,
-        id_token: accessToken,
+        access_token: accessToken,
       });
     }
+
   } catch (error) {
     if (!error.status) {
       console.log(error);

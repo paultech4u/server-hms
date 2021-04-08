@@ -47,14 +47,11 @@ async function addNewUser(req, res, next) {
   }
 
   try {
+
     // @TODO check if user making this request is an admin
     const isUserAdmin = await User.findById(userId);
-    if (!isUserAdmin) {
-      ErrorExceptionMessage(404, 'Admin not found');
-    }
-
-    if (isUserAdmin.role !== 'ADMIN') {
-      ErrorExceptionMessage(401, 'Unauthorised access');
+    if (isUserAdmin.isAdmin === false) {
+      ErrorExceptionMessage(404, 'Unauthorised access');
     }
 
     // @TODO Check if user exist
@@ -78,7 +75,7 @@ async function addNewUser(req, res, next) {
     // Encrpyt user password
     const encrpyt_pass = await bcrypt.hash(password, 10);
 
-    const new_user = new User({
+    const newUser = new User({
       email,
       firstname,
       lastname,
@@ -89,19 +86,20 @@ async function addNewUser(req, res, next) {
       hospital: hospital._id,
       department: departments._id,
     });
-    await new_user.save();
+    await newUser.save();
     const accessToken = jwt.sign(
       {
-        id: new_user._id,
+        id: newUser._id,
       },
       JWT_SECRET_KEY,
       { expiresIn: '10m' }
     );
-    // @TODO Send a comfirmation message to newly created account
+    // send a comfirmation message to newly created account
     comfirmationMSG(email, req.hostname, accessToken, firstname);
     return res.status(200).json({
       message: 'Confirmation message sent',
     });
+
   } catch (error) {
     if (!error.status) {
       error.status = 500;

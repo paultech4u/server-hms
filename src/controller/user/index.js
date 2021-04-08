@@ -1,17 +1,17 @@
 import express from 'express';
-import loginUser from './userLoginAccount';
+import loginUser from './loginUser';
 import deleteUser from './userDeleteAccount';
-import addNewUser from './userAccountSignup';
+import addNewUser from './addNewUser';
+import refreshToken from './refreshToken';
 import { uploads } from '../../service/multer';
 import { body, check } from 'express-validator';
 import getUserProfile from './userGetAccountProfile';
-import refreshToken from './userRefreshAccountTokens';
 import isAuthenticated from '../../auth/authMiddleware';
 import resetUserPassword from './userResetAccountPassword';
 import userForgetPassword from './userForgetAccountPassword';
 import deactivateUserAccount from './userDeactivateAccount';
-import verifyUserEmail from './userAccountVerification';
-import { uploadProfileAvatar } from './userAccountUploadProfilePicture';
+import verifyUserEmail from './verifyUserEmail';
+import { uploadProfilePicture } from './uploadProfilePicture';
 
 // Initialize a request methods and routes.
 const router = express.Router();
@@ -19,10 +19,10 @@ const router = express.Router();
 /**
  * @method POST
  * @access Public
- * @endpoints /api/add-account
+ * @endpoints /api/add-user
  */
 router.post(
-  '/user/add-account',
+  '/user/add-user',
   [
     body('email')
       .not()
@@ -41,9 +41,9 @@ router.post(
       .isEmpty()
       .trim()
       .withMessage('must contain a character'),
-    body(['username', 'department']).trim(),
+    body(['username', 'department_name', 'hospital_name']).trim(),
   ],
-
+  isAuthenticated,
   addNewUser
 );
 
@@ -126,13 +126,13 @@ router.post(
 /**
  * @method PUT
  * @access Private
- * @endpoints /api/profile
+ * @endpoints /api/upload-image
  */
-router.put(
-  '/user/profile',
+router.post(
+  '/user/upload-image',
   uploads.single('avatar'),
   isAuthenticated,
-  uploadProfileAvatar
+  uploadProfilePicture
 );
 
 /**

@@ -1,12 +1,14 @@
 import jwt from 'jsonwebtoken';
-import { error } from '../util/error';
+import { ErrorExceptionMessage } from '../util/error';
 
-// TODO check if user is authenticated
 const { JWT_SECRET_KEY } = process.env;
-const isAuthenticated = (req, res, next) => {
+
+
+// check if user is authenticate
+function isAuthenticated(req, res, next){
   const authheader = req.get('Authorization');
   if (!authheader) {
-    error(511, 'Not authenticated');
+    ErrorExceptionMessage(511, 'Not authenticated');
   }
   const token = authheader.split(' ')[1];
   let decodedToken;
@@ -17,7 +19,7 @@ const isAuthenticated = (req, res, next) => {
     throw error;
   }
   if (!decodedToken) {
-    error(401, 'Token invalid');
+    ErrorExceptionMessage(401, 'Token invalid');
   }
   req.userId = decodedToken.id;
   next();
