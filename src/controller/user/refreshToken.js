@@ -4,7 +4,7 @@ import {
   signRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
-} from './userAccountService';
+} from './service';
 
 import { ErrorExceptionMessage } from '../../util/error';
 

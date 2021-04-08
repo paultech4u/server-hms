@@ -1,16 +1,16 @@
 import express from 'express';
 import loginUser from './loginUser';
-import deleteUser from './userDeleteAccount';
+import deleteUser from './deleteUser';
 import addNewUser from './addNewUser';
 import refreshToken from './refreshToken';
+import forgetPassword from './forgetPassword';
 import { uploads } from '../../service/multer';
+import resetUserPassword from './resetPassword';
 import { body, check } from 'express-validator';
-import getUserProfile from './userGetAccountProfile';
-import isAuthenticated from '../../auth/authMiddleware';
-import resetUserPassword from './userResetAccountPassword';
-import userForgetPassword from './userForgetAccountPassword';
-import deactivateUserAccount from './userDeactivateAccount';
 import verifyUserEmail from './verifyUserEmail';
+import getUserProfile from './getProfileDetails';
+import deactivateUserAccount from './deactivateUser';
+import isAuthenticated from '../../auth/authMiddleware';
 import { uploadProfilePicture } from './uploadProfilePicture';
 
 // Initialize a request methods and routes.
@@ -120,11 +120,11 @@ router.post(
       .trim()
       .withMessage('must contain a character value')
   ],
-  userForgetPassword
+  forgetPassword
 );
 
 /**
- * @method PUT
+ * @method POST
  * @access Private
  * @endpoints /api/upload-image
  */

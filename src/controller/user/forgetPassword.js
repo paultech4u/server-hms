@@ -5,20 +5,25 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
-} from './userAccountService';
+} from './service';
 import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req  request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
+ * 
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ */
+
+/**
+ * @param  {object} req   object
+ * @param  {object} res   object
+ * @param  {NextFunction} next middleware function
  * @author  Paulsimon Edache
  */
-const userForgetPassword = async function (req, res, next) {
+async function forgetPassword(req, res, next) {
   const { password1, password2, email } = req.body;
   const errors = validationResult(req);
   try {
@@ -88,4 +93,4 @@ const userForgetPassword = async function (req, res, next) {
   }
 };
 
-export default userForgetPassword;
+export default forgetPassword;

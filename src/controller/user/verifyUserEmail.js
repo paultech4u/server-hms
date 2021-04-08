@@ -1,6 +1,6 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
-import { verifyAccessToken } from './userAccountService';
+import { verifyAccessToken } from './service';
 import { ErrorExceptionMessage } from '../../util/error';
 
 /**
