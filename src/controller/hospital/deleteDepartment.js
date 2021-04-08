@@ -1,24 +1,29 @@
 import { Department } from '../../model/department';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ *
  */
 
 /**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
+ 
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next middleware function
  */
-export const DeleteDepartment = async (req, res, next) => {
+async function deleteDepartment(req, res, next) {
   const { id } = req.params;
   const department = await Department.findByIdAndDelete(id);
+
   try {
     if (!department) {
       res.status(404).json({
         message: 'DEPARTMENT_NOT_FOUND',
       });
     }
+
     res.status(200).json({
       message: 'Deleted',
     });
@@ -28,4 +33,6 @@ export const DeleteDepartment = async (req, res, next) => {
     }
     next(error);
   }
-};
+}
+
+export default deleteDepartment;

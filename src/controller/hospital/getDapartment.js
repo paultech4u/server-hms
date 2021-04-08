@@ -3,29 +3,36 @@ import { validationResult } from 'express-validator';
 import { Department } from '../../model/department';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ *
  */
 
 /**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
+ * Get a single department
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next function
  */
-// TODO get a single department
-export const GetDepartment = async (req, res, next) => {
+
+async function getDepartment(req, res, next) {
+  const { id } = req.params;
   const errors = validationResult(req);
+
+  // perform checks for validation error
   if (!errors.isEmpty()) {
     res.status(406).json({
       error: errors.mapped(),
     });
   }
-  const { id } = req.params;
-  const department = await Department.findById(id);
   try {
+    const department = await Department.findById(id);
+
     if (!department) {
       ErrorExceptionMessage(404, 'Department not found');
     }
+
     res.status(200).json({
       message: 'Fetched department successful!',
       department: department,
@@ -36,4 +43,6 @@ export const GetDepartment = async (req, res, next) => {
     }
     next(error);
   }
-};
+}
+
+export default getDepartment;

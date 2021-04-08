@@ -6,7 +6,7 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @typedef {{}} Request
  * @typedef {{}} Response
  * @typedef {{}} NextFunction
- * 
+ *
  */
 
 /**
@@ -16,10 +16,10 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {NextFunction} next function
  */
 async function deactivateUser(req, res, next) {
-  const { userId } = req.body;
+  const { id } = req.params;
 
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(id);
 
     if (!user) {
       ErrorExceptionMessage(404, 'User not found');

@@ -3,34 +3,41 @@ import { validationResult } from 'express-validator';
 import { Department } from '../../model/department';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ *
  */
 
 /**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
+ 
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next middleware function
  */
-export const EditDepartment = async (req, res, next) => {
+async function editDepartment(req, res, next) {
+  // department id
+  const { id } = req.params;
+  const { name, description } = req.body;
   const errors = validationResult(req);
+
+  // perform checks for validation error
   if (!errors.isEmpty()) {
     res.status(406).json({
       error: errors.mapped(),
     });
-  } // TODO check if department exists
-  // TODO send a res if department exist
-  const { id } = req.params; // department id
-  const { name, description } = req.body;
+  }
 
-  const department = await Department.findById(id).updateOne(
-    {},
-    { name: name, department: description }
-  );
   try {
+    const department = await Department.findById(id).updateOne(
+      {},
+      { name: name, department: description }
+    );
+
     if (!department) {
       ErrorExceptionMessage(404, 'Department not found');
     }
+
     res.status(200).json({
       message: `Department updated`,
     });
@@ -40,4 +47,6 @@ export const EditDepartment = async (req, res, next) => {
     }
     next(error);
   }
-};
+}
+
+export default editDepartment;

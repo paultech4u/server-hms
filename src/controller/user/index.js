@@ -85,17 +85,17 @@ router.post('/refresh', isAuthenticated, refreshToken);
  * @private
  * @method PUT
  * @access Private
- * @endpoints /api/deactivate
+ * @endpoints /api/deactivate/:id
  */
-router.put('/user/deactivate', isAuthenticated, deactivateUser);
+router.put('/user/deactivate/:id', isAuthenticated, deactivateUser);
 
 /**
  * @private
  * @method PUT
  * @access Private
- * @endpoints /api/activate
+ * @endpoints /api/activate/:id
  */
-router.put('/user/activate', isAuthenticated, activateUser);
+router.put('/user/activate/:id', isAuthenticated, activateUser);
 
 /**
  * @method PUT

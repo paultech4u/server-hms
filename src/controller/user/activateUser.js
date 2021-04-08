@@ -16,9 +16,9 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {NextFunction} next function
  */
 async function activateUser(req, res, next) {
-  const { Id } = req.params;
+  const { id } = req.params;
   try {
-    const user = await User.findById(Id);
+    const user = await User.findById(id);
 
     if (!user) {
       ErrorExceptionMessage(404, 'User not found');

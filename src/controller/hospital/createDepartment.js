@@ -5,53 +5,67 @@ import { validationResult } from 'express-validator';
 import { Department } from '../../model/department';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ *
  */
 
 /**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
+ 
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next middleware function
  */
-export const CreateDepartment = async function (req, res, next) {
-  const { name, description, hospital } = req.body;
-  // Get admin id from auth token
+async function createDepartment(req, res, next) {
+  const { department_name, description, hospital_name } = req.body;
   const { id } = req.query;
+
   const errors = validationResult(req);
+
+  // performs checks for validation error
   if (!errors.isEmpty()) {
     res.status(412).json({
       message: errors.mapped(),
     });
   }
+
   try {
     const admin = await Admin.findById(id);
-    // TODO extract admin id from hospital
-    const hospitals = await Hospital.findOne({ name: hospital });
-    if (!hospitals) {
+
+    // extract admin id from hospital
+    const hospital = await Hospital.findOne({ name: hospital_name });
+
+    if (!hospital) {
       ErrorExceptionMessage(404, 'Hospital not found');
     }
-    if (hospitals.admin !== id) {
-      if (admin.isAdmin !== true) ErrorExceptionMessage(401, 'Unauthorized');
+
+    if (hospital.admin !== id || admin.isAdmin !== true) {
+      ErrorExceptionMessage(401, 'Unauthorized');
     }
+
     const department = await Department.findOne({
-      name: name,
+      name: department_name,
     });
-    // TODO check for an exiting department
+
+    // check for any existing department
     if (department) {
       ErrorExceptionMessage(302, 'Department exists');
     }
+
     const newDepartment = new Department({
-      name: name,
+      name: department_name,
       description: description,
-      creator: hospitals.admin,
-      hospital: hospitals._id,
+      creator: hospital.admin,
+      hospital: hospital._id,
     });
-    // TODO save to database
+
+    // save to database
     newDepartment.save();
+
     res.status(201).json({
       message: 'Created!',
-      newDepartment: newDepartment,
+      dapartment: newDepartment,
     });
   } catch (error) {
     if (!error.status) {
@@ -59,12 +73,6 @@ export const CreateDepartment = async function (req, res, next) {
     }
     next(error);
   }
-};
+}
 
-
-
-
-
-
-
-
+export default createDepartment;

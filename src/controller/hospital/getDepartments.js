@@ -1,46 +1,44 @@
 import { ErrorExceptionMessage } from '../../util/error';
-import { validationResult } from 'express-validator';
 import { Department } from '../../model/department';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ *
  */
 
 /**
- * @param  {object} req request object
- * @param  {object} res  response object
- * @param  {Function} next next middleware function
+ 
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next middleware function
  */
-export const GetDepartments = async function (req, res, next) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(406).json({
-      error: errors.mapped(),
-    });
-  }
+async function getDepartments(req, res, next) {
   const perPage = 5;
   const currentPage = 1;
+
   try {
-    // TODO get all document in the department collection
+    // get all document in the department collection
     const departments = await Department.find()
       .skip((currentPage - 1) * perPage)
       .limit(perPage)
       .orFail(() => {
-        // TODO throw error if department is not available
+        // throw error if department is not available
         ErrorExceptionMessage(404, 'No Departments found');
       })
       .populate(
         'hospital',
         'name email state creation address admin zip_code -_id'
       );
-    // TODO number of available departments
+
+    // number of available departments
     const totalDepartments = await Department.find().countDocuments();
 
     res.status(200).json({
       message: 'Fetched departments successful!',
       departments: departments,
-      totalDepartments: totalDepartments,
+      total_departments: totalDepartments,
     });
   } catch (error) {
     if (!error.status) {
@@ -48,4 +46,6 @@ export const GetDepartments = async function (req, res, next) {
     }
     next(error);
   }
-};
+}
+
+export default getDepartments;

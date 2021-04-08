@@ -9,9 +9,8 @@ import {
 import { ErrorExceptionMessage } from '../../util/error';
 import { validationResult } from 'express-validator';
 
-
 /**
- * 
+ *
  * @typedef {{}} Request
  * @typedef {{}} Response
  * @typedef {{}} NextFunction
@@ -26,28 +25,36 @@ import { validationResult } from 'express-validator';
 async function forgetPassword(req, res, next) {
   const { password1, password2, email } = req.body;
   const errors = validationResult(req);
+
+  //  perform checks for validation error
+  if (!errors.isEmpty()) {
+    res.status(406).json({
+      error: errors.mapped(),
+    });
+  }
+
   try {
-    if (!errors.isEmpty()) {
-      res.status(406).json({
-        error: errors.mapped(),
-      });
-    }
     const user = await User.findOne({ email: email });
+
     if (!user) {
       ErrorExceptionMessage(404, `${email} not found`);
     }
+
     if (email !== user.email) {
-      ErrorExceptionMessage(404, `${email} is not a registered on this application `);
+      ErrorExceptionMessage(
+        404,
+        `${email} is not a registered on this application `
+      );
     }
-    if (user.isVerified == false) {
+
+    // check if user is verified
+    if (user.isVerified === false) {
       ErrorExceptionMessage(404, `${email} your email is not verified`);
     }
 
-    if(password1 !== password2){
-      ErrorExceptionMessage(
-        406,
-        'password not match'
-      );
+    // compare password
+    if (password1 !== password2) {
+      ErrorExceptionMessage(406, 'password not match');
     }
 
     const isMatch = await bcrypt.compare(password1, user.password);
@@ -62,27 +69,25 @@ async function forgetPassword(req, res, next) {
       id: user.id,
     };
 
-    const hash_password = await bcrypt.hash(password1, 10);
+    const encrpyted_password = await bcrypt.hash(password1, 10);
     const accessToken = signAccessToken(user.id, payload);
     const verifyIdToken = verifyAccessToken(accessToken);
     const refreshToken = signRefreshToken(user.id, payload);
 
-    // Storing the hashed password and the refresh token
-    // to the password and refresh token model field.
-    user.password = hash_password;
+    // updating the encrpyted password and the refresh token model field
+    user.password = encrpyted_password;
     user.refToken = refreshToken;
 
-    // Model Saved
-    await user.save();
+    // model saved
+    user.save();
 
-    // Returned Payload
+    // returned payload
     res.status(200).json({
       message: 'OK',
       email: user.email,
       user_id: user._id,
       username: user.username,
-      id_token: accessToken,
-      refresh_token: refreshToken,
+      access_token: accessToken,
       expires_in: verifyIdToken.exp,
     });
   } catch (error) {
@@ -91,6 +96,6 @@ async function forgetPassword(req, res, next) {
     }
     next(error);
   }
-};
+}
 
 export default forgetPassword;

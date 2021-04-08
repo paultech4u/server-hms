@@ -1,14 +1,14 @@
 import express from 'express';
-import { body, check } from 'express-validator';
-import RateLimitter from 'express-rate-limit';
+import getDepartment from './getDapartment';
 import addNewHospital from './addNewHospital';
-import { GetDepartment } from './adminGetDapartment';
+import rateLimitter from 'express-rate-limit';
+import editDepartment from './editDepartment';
+import getDepartments from './getDepartments';
+import { body, check } from 'express-validator';
+import deleteDepartment from './deleteDepartment';
+import createDepartment from './createDepartment';
 import addNewHospitalAdmin from './addNewHospitalAdmin';
-import { EditDepartment } from './adminEditDepartment';
-import { GetDepartments } from './adminGetDepartments';
 import isAuthenticated from '../../auth/authMiddleware';
-import { DeleteDepartment } from './adminDeleteDepartment';
-import { CreateDepartment } from './adminCreateDepartment';
 
 // Initialized the requests methods and routes.
 const router = express.Router();
@@ -16,10 +16,10 @@ const router = express.Router();
 /**
  * @method POST
  * @access Private
- * @endpoints /api/signup?role=admin
+ * @endpoints /api/create-admin?role=admin
  */
 router.post(
-  '/hospital/signup',
+  '/hospital/create-admin',
   [
     body('email')
       .not()
@@ -45,7 +45,7 @@ router.post(
 
 // Hospital APIs
 
-const register_ratelimiter = RateLimitter({
+const register_ratelimiter = rateLimitter({
   windowMs: 3 * 60 * 1000,
   max: 5,
   message: 'To many requests sents',
@@ -54,10 +54,10 @@ const register_ratelimiter = RateLimitter({
 /**
  * @method POST
  * @access Private
- * @endpoints /api/register
+ * @endpoints /api/register-hospital
  */
 router.post(
-  '/register',
+  '/register-hospital',
   [
     body('email').isEmail(),
     body('zip_no').isNumeric().trim(),
@@ -72,43 +72,43 @@ router.post(
 /**
  * @method POST
  * @access Private
- * @endpoints /api/department/create
+ * @endpoints /api/create-department
  */
 router.post(
-  '/department/create',
+  '/create-department',
   [
     body('name').not().isEmpty().trim(),
     body('description').not().isEmpty().trim(),
   ],
-  CreateDepartment
+  createDepartment
 );
 
 /**
  * @method GET
  * @access Public
- * @endpoints /api/department
+ * @endpoints /api/get-department
  */
-router.get('/department', GetDepartments);
+router.get('/get-department', getDepartments);
 
 /**
  * @method GET
  * @access Public
- * @endpoints /api/department/:id
+ * @endpoints /api/get-department/:id
  */
-router.get('/department/:id', GetDepartment);
+router.get('/get-department/:id', getDepartment);
 
 /**
  * @method PUT
  * @access Private
- * @endpoints /api/department/:id
+ * @endpoints /api/edit-department/:id
  */
-router.put('/department/:id', isAuthenticated, EditDepartment);
+router.put('/edit-department/:id', isAuthenticated, editDepartment);
 
 /**
  * @method DELETE
  * @access Private
- * @endpoints /api/department/create-department
+ * @endpoints /api/delete-department/:id
  */
-router.delete('/department/:id', isAuthenticated, DeleteDepartment);
+router.delete('/delete-department/:id', isAuthenticated, deleteDepartment);
 
 export default router;
