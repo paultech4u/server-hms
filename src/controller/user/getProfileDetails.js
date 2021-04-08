@@ -3,19 +3,24 @@ import { Response, Request } from 'express';
 import { ErrorExceptionMessage } from '../../util/error';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req request object
- * @param  {object} res response object
- * @param  {Function} next next middleware function
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ *
  */
-const getUserProfile = async function (req, res, next) {
-  // TODO get a user profile payload from an authorization token
-  // TODO if user is authenticated.
+
+/**
+ 
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next function
+ */
+async function getUserProfileDetails(req, res, next) {
+  // user uuid
   const { userId } = req;
 
-  // TODO check if user exits
   try {
+    // query if user exits
     const user = await User.findOne({ _id: userId })
       .select([
         'email',
@@ -30,9 +35,11 @@ const getUserProfile = async function (req, res, next) {
       .populate('hospital', 'name -_id')
       .populate('department', 'name -_id')
       .exec();
+
     if (!user) {
       ErrorExceptionMessage(404, 'User not found');
     }
+
     res.status(200).json({ message: 'OK', user: user });
   } catch (error) {
     if (!error.status) {
@@ -41,6 +48,6 @@ const getUserProfile = async function (req, res, next) {
     }
     next(error);
   }
-};
+}
 
-export default getUserProfile;
+export default getUserProfileDetails;

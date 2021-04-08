@@ -3,21 +3,33 @@ import { Response, Request } from 'express';
 import { ErrorExceptionMessage } from '../../util/error';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req  request object
- * @param  {object} res  response object
- * @param  {Function} next  next middleware function
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ * 
  */
-async function deactivateUserAccount(req, res, next) {
-  const { userID } = req.body;
+
+/**
+ 
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next function
+ */
+async function deactivateUser(req, res, next) {
+  const { userId } = req.body;
+
   try {
-    const user = await User.findById(userID);
+    const user = await User.findById(userId);
+
     if (!user) {
       ErrorExceptionMessage(404, 'User not found');
     }
+
+    // unverify the user
     user.isVerified = false;
+
     user.save();
+
     res.status(200).json({
       message: 'User disabled',
     });
@@ -27,8 +39,6 @@ async function deactivateUserAccount(req, res, next) {
     }
     next(error);
   }
-};
+}
 
-
-export default deactivateUserAccount;
-
+export default deactivateUser;

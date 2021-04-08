@@ -38,7 +38,7 @@ async function addNewUser(req, res, next) {
 
   const { userId } = req;
 
-  // Performs checks for validation errors
+  // performs checks for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(406).json({
@@ -54,7 +54,7 @@ async function addNewUser(req, res, next) {
       ErrorExceptionMessage(404, 'Unauthorised access');
     }
 
-    // @TODO Check if user exist
+    // @TODO check if user exist
     const user = await User.findOne({ email: email });
     if (user) {
       ErrorExceptionMessage(302, 'Email exists');
@@ -73,14 +73,14 @@ async function addNewUser(req, res, next) {
     }
 
     // Encrpyt user password
-    const encrpyt_pass = await bcrypt.hash(password, 10);
+    const encrpyted_password = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       email,
       firstname,
       lastname,
       username,
-      password: encrpyt_pass,
+      password: encrpyted_password,
       phone_number,
       role: role,
       hospital: hospital._id,

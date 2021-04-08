@@ -2,14 +2,15 @@ import express from 'express';
 import loginUser from './loginUser';
 import deleteUser from './deleteUser';
 import addNewUser from './addNewUser';
+import activateUser from './activateUser';
 import refreshToken from './refreshToken';
+import deactivateUser from './deactivateUser';
 import forgetPassword from './forgetPassword';
 import { uploads } from '../../service/multer';
 import resetUserPassword from './resetPassword';
 import { body, check } from 'express-validator';
 import verifyUserEmail from './verifyUserEmail';
-import getUserProfile from './getProfileDetails';
-import deactivateUserAccount from './deactivateUser';
+import getUserProfileDetails from './getProfileDetails';
 import isAuthenticated from '../../auth/authMiddleware';
 import { uploadProfilePicture } from './uploadProfilePicture';
 
@@ -71,7 +72,7 @@ router.post(
  * @access Private
  * @endpoints /api/get-profile
  */
-router.get('/user/get-profile', isAuthenticated, getUserProfile);
+router.get('/user/get-profile', isAuthenticated, getUserProfileDetails);
 
 /**
  * @method POST
@@ -86,7 +87,15 @@ router.post('/refresh', isAuthenticated, refreshToken);
  * @access Private
  * @endpoints /api/deactivate
  */
-router.put('/user/deactivate', isAuthenticated, deactivateUserAccount);
+router.put('/user/deactivate', isAuthenticated, deactivateUser);
+
+/**
+ * @private
+ * @method PUT
+ * @access Private
+ * @endpoints /api/activate
+ */
+router.put('/user/activate', isAuthenticated, activateUser);
 
 /**
  * @method PUT
@@ -114,11 +123,11 @@ router.post(
       .isEmpty()
       .trim()
       .withMessage('must contain a character value'),
-      body('password2')
+    body('password2')
       .not()
       .isEmpty()
       .trim()
-      .withMessage('must contain a character value')
+      .withMessage('must contain a character value'),
   ],
   forgetPassword
 );

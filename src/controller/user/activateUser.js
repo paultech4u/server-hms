@@ -3,28 +3,40 @@ import { Response, Request } from 'express';
 import { ErrorExceptionMessage } from '../../util/error';
 
 /**
- * @typedef {Request} req
- * @typedef {Response} res
- * @param  {object} req request object
- * @param  {object} res response object
- * @param  {Function} next next middleware function
+ * @typedef {{}} Request
+ * @typedef {{}} Response
+ * @typedef {{}} NextFunction
+ * 
  */
-async function activateUserAccount(req, res, next) {
-  const { id } = req.params;
+
+/**
+ 
+ * @param  {Request} req object
+ * @param  {Response} res object
+ * @param  {NextFunction} next function
+ */
+async function activateUser(req, res, next) {
+  const { Id } = req.params;
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(Id);
+
     if (!user) {
       ErrorExceptionMessage(404, 'User not found');
     }
+
+    // check if user already verified
     if (user.isVerified === true) {
       ErrorExceptionMessage(422, 'Account already verified');
     }
+
     user.isVerified = true;
+
     user.save();
+
     res.status(200).json({
       message: 'OK',
     });
   } catch (error) {}
-};
+}
 
-export default activateUserAccount;
+export default activateUser;
