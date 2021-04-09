@@ -14,7 +14,7 @@ import getUserProfileDetails from './getProfileDetails';
 import isAuthenticated from '../../auth/authMiddleware';
 import { uploadProfilePicture } from './uploadProfilePicture';
 
-// Initialize a request methods and routes.
+// Initialize the request methods and routes.
 const router = express.Router();
 
 /**
@@ -68,7 +68,7 @@ router.post(
 
 /**
  * @private
- * @method POST
+ * @method GET
  * @access Private
  * @endpoints /api/get-profile
  */
@@ -110,7 +110,7 @@ router.put(
 );
 
 /**
- * @method PUT
+ * @method POST
  * @access Public
  * @endpoints /api/forget-password
  */

@@ -26,6 +26,7 @@ export async function uploadProfilePicture(req, res, next) {
   try {
     // check if user exist
     const user = await User.findById(userId);
+
     if (!user) {
       ErrorException(404, 'User does not exists');
     }
@@ -38,21 +39,14 @@ export async function uploadProfilePicture(req, res, next) {
     };
 
     const imageFile = await uploadImageToCloudinary(imageUrl.path);
-    console.log(imageFile);
 
     // remove saved image URL from uploads
     fs.unlinkSync(imageUrl.path);
 
     // update user profile image
-    const updatedUserProfileImage = new User({
-      imageUrl: imageFile.url,
-    });
+    user.imageUrl = imageFile.result.url;
 
-    const imageUploadSaved = updatedUserProfileImage.save();
-
-    if (!imageUploadSaved) {
-      ErrorException(404, 'Upload not successful');
-    }
+    await user.save();
 
     return res.status(200).json({
       message: 'uploaded successful',

@@ -25,17 +25,21 @@ async function addNewHospital(req, res, next) {
   }
   try {
     const hospital = await Hospital.findOne({ name: name });
+
     if (hospital) {
       ErrorExceptionMessage(404, 'Hospital  exist');
     }
-    const new_hospital = new Hospital({
+
+    const newHospital = new Hospital({
       name,
       email,
       state,
       address,
       zip_no,
     });
-    new_hospital.save();
+
+    await newHospital.save();
+
     return res.status(201).json({
       message: 'Created',
     });
