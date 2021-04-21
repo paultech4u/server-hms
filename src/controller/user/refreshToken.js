@@ -5,8 +5,7 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
 } from './service';
-
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 
 /**
  *
@@ -21,20 +20,19 @@ import { ErrorExceptionMessage } from '../../util/error';
  * @param  {NextFunction} next  middleware function
  */
 async function refreshToken(req, res, next) {
-  // user uuid 
+  // user uuid
   const { userId } = req;
 
   try {
-
     if (!userId) {
-      ErrorExceptionMessage(401, 'uuid unavailable');
+      errorHandler(401, 'uuid unavailable');
     }
 
     const user = await User.findById(userId);
 
     // check if user has refresh token
     if (!user.refToken) {
-      ErrorExceptionMessage(404, 'No token present');
+      errorHandler(404, 'No token present');
     }
 
     let new_reftoken = null;
@@ -68,7 +66,6 @@ async function refreshToken(req, res, next) {
         access_token: accessToken,
       });
     }
-
   } catch (error) {
     if (!error.status) {
       console.log(error);
@@ -76,6 +73,6 @@ async function refreshToken(req, res, next) {
     }
     next(error);
   }
-};
+}
 
 export default refreshToken;

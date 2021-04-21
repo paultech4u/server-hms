@@ -1,6 +1,6 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 
 /**
  * @typedef {{}} Request
@@ -37,14 +37,13 @@ async function getUserProfileDetails(req, res, next) {
       .exec();
 
     if (!user) {
-      ErrorExceptionMessage(404, 'User not found');
+      errorHandler(404, 'Unable to retrieve profile');
     }
 
-    res.status(200).json({ message: 'OK', user: user });
+    res.status(200).json({ message: 'OK', profile: user });
   } catch (error) {
     if (!error.status) {
       error.status = 500;
-      error.message = 'Unable to fetch profile';
     }
     next(error);
   }

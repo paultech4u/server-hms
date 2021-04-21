@@ -1,6 +1,6 @@
 import express from 'express';
 import isAuthenticated from '../../auth/authMiddleware';
-import registerPatient from '../patient/registerPatient';
+import registerPatient from './registerPatient';
 
 const router = express.Router();
 

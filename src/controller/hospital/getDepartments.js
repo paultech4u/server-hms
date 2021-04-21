@@ -1,4 +1,4 @@
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 import { Department } from '../../model/department';
 
 /**
@@ -25,7 +25,7 @@ async function getDepartments(req, res, next) {
       .limit(perPage)
       .orFail(() => {
         // throw error if department is not available
-        ErrorExceptionMessage(404, 'No Departments found');
+        errorHandler(404, 'No Departments found');
       })
       .populate(
         'hospital',

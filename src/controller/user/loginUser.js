@@ -6,7 +6,7 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
 } from './service';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 
 /**
  *
@@ -28,15 +28,15 @@ async function loginUser(req, res, next) {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      ErrorExceptionMessage(404, `${email} does not exists`);
+      errorHandler(404, `${email} does not exists`);
     }
     if (user.isVerified === false) {
-      ErrorExceptionMessage(401, `${email} not verified`);
+      errorHandler(401, `${email} not verified`);
     }
 
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      ErrorExceptionMessage(401, 'wrong password');
+      errorHandler(401, 'wrong password');
     }
 
     let new_reftoken = null;

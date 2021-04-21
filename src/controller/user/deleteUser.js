@@ -1,7 +1,7 @@
 import { User } from '../../model/user';
 import { Admin } from '../../model/admin';
 import { Hospital } from '../../model/hospital';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 
 /**
  * @typedef {object} request
@@ -24,7 +24,7 @@ async function deleteUser(req, res, next) {
     const admin = await Admin.findById(userId);
 
     if (!admin) {
-      ErrorExceptionMessage(401, 'No admin found');
+      errorHandler(401, 'No admin found');
     }
 
     // check user is an admin
@@ -32,18 +32,18 @@ async function deleteUser(req, res, next) {
 
     // check if user as no authorize access.
     if (admin._id !== isHospitalAdmin.admin) {
-      ErrorExceptionMessage(401, 'Unathorised access');
+      errorHandler(401, 'Unathorised access');
     }
 
     const user = await User.findById(Id);
 
     if (!user) {
-      ErrorExceptionMessage(404, 'User not found');
+      errorHandler(404, 'User not found');
     }
 
     // compare id if they are equal.
     if (userId === user._id) {
-      ErrorExceptionMessage(406, 'Cannot remove admin');
+      errorHandler(406, 'Cannot remove admin');
     }
     const deleteUser = await User.deleteOne({ _id: Id });
 

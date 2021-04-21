@@ -6,7 +6,7 @@ import {
   signRefreshToken,
   verifyAccessToken,
 } from './service';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 import { validationResult } from 'express-validator';
 
 /**
@@ -37,11 +37,11 @@ async function forgetPassword(req, res, next) {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      ErrorExceptionMessage(404, `${email} not found`);
+      errorHandler(404, `${email} not found`);
     }
 
     if (email !== user.email) {
-      ErrorExceptionMessage(
+      errorHandler(
         404,
         `${email} is not a registered on this application `
       );
@@ -49,17 +49,17 @@ async function forgetPassword(req, res, next) {
 
     // check if user is verified
     if (user.isVerified === false) {
-      ErrorExceptionMessage(404, `${email} your email is not verified`);
+      errorHandler(404, `${email} your email is not verified`);
     }
 
     // compare password
     if (password1 !== password2) {
-      ErrorExceptionMessage(406, 'password not match');
+      errorHandler(406, 'password not match');
     }
 
     const isMatch = await bcrypt.compare(password1, user.password);
     if (isMatch) {
-      ErrorExceptionMessage(
+      errorHandler(
         406,
         'new password must not be the same with the old password'
       );

@@ -1,6 +1,6 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 
 /**
  * @typedef {{}} Request
@@ -21,12 +21,12 @@ async function activateUser(req, res, next) {
     const user = await User.findById(id);
 
     if (!user) {
-      ErrorExceptionMessage(404, 'User not found');
+      errorHandler(404, 'User not found');
     }
 
     // check if user already verified
     if (user.isVerified === true) {
-      ErrorExceptionMessage(422, 'Account already verified');
+      errorHandler(422, 'Account already verified');
     }
 
     user.isVerified = true;

@@ -4,9 +4,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { DatabaseConfig } from './src/database/config';
 
-import USER_ROUTE from './src/controller/user';
-import PATIENTS_ROUTE from './src/controller/patient'
-import HOSPITAL_ROUTE from './src/controller/hospital';
+import USER_ROUTE from './src/controller/user/api';
+import PATIENTS_ROUTE from './src/controller/patient/api'
+import HOSPITAL_ROUTE from './src/controller/hospital/api';
 
 const app = express();
 

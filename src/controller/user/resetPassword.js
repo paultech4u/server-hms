@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { User } from '../../model/user';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 import { validationResult } from 'express-validator';
 
 async function resetUserPassword(req, res, next) {
@@ -19,14 +19,14 @@ async function resetUserPassword(req, res, next) {
     const user = await User.findById(userId);
 
     if (!user) {
-      ErrorExceptionMessage(404, 'User not found');
+      errorHandler(404, 'User not found');
     }
 
     // compare new password <---> previous password
     const isEqual = await bcrypt.compare(newPassword, user.password);
 
     if (isEqual) {
-      ErrorExceptionMessage(
+      errorHandler(
         406,
         'new password should not be the same with old password'
       );

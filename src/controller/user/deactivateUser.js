@@ -1,6 +1,6 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 
 /**
  * @typedef {{}} Request
@@ -22,7 +22,7 @@ async function deactivateUser(req, res, next) {
     const user = await User.findById(id);
 
     if (!user) {
-      ErrorExceptionMessage(404, 'User not found');
+      errorHandler(404, 'User not found');
     }
 
     // unverify the user

@@ -14,7 +14,7 @@ import { Department } from '../../model/department';
  * @param  {NextFunction} next middleware function
  */
 async function deleteDepartment(req, res, next) {
-  const { id } = req.params;
+  const { id } = req.query;
   const department = await Department.findByIdAndDelete(id);
 
   try {

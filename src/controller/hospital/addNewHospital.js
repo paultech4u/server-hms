@@ -1,5 +1,5 @@
 import { Hospital } from '../../model/hospital';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 import { validationResult } from 'express-validator';
 
 /**
@@ -27,7 +27,7 @@ async function addNewHospital(req, res, next) {
     const hospital = await Hospital.findOne({ name: name });
 
     if (hospital) {
-      ErrorExceptionMessage(404, 'Hospital  exist');
+      errorHandler(404, 'Hospital  exist');
     }
 
     const newHospital = new Hospital({

@@ -60,6 +60,10 @@ const USER = new Schema(
       required: false,
       default: false,
     },
+    specialization: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );

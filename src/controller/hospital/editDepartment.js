@@ -1,4 +1,4 @@
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 import { validationResult } from 'express-validator';
 import { Department } from '../../model/department';
 
@@ -17,7 +17,7 @@ import { Department } from '../../model/department';
  */
 async function editDepartment(req, res, next) {
   // department id
-  const { id } = req.params;
+  const { id } = req.query;
   const { name, description } = req.body;
   const errors = validationResult(req);
 
@@ -35,7 +35,7 @@ async function editDepartment(req, res, next) {
     );
 
     if (!department) {
-      ErrorExceptionMessage(404, 'Department not found');
+      errorHandler(404, 'Department not found');
     }
 
     res.status(200).json({

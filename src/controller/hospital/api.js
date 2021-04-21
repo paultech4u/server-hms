@@ -16,10 +16,10 @@ const router = express.Router();
 /**
  * @method POST
  * @access Private
- * @endpoints /api/create-admin?role=admin
+ * @endpoints /api/admin/register?role=admin
  */
 router.post(
-  '/hospital/create-admin',
+  '/admin/register',
   [
     body('email')
       .not()
@@ -54,10 +54,10 @@ const register_ratelimiter = rateLimitter({
 /**
  * @method POST
  * @access Private
- * @endpoints /api/register-hospital
+ * @endpoints /api/register
  */
 router.post(
-  '/register-hospital',
+  '/register',
   [
     body('email').isEmail(),
     body('zip_no').isNumeric().trim(),
@@ -72,10 +72,10 @@ router.post(
 /**
  * @method POST
  * @access Private
- * @endpoints /api/create-department
+ * @endpoints /api/department/create
  */
 router.post(
-  '/create-department',
+  '/department/create',
   [
     body('name').not().isEmpty().trim(),
     body('description').not().isEmpty().trim(),
@@ -86,29 +86,29 @@ router.post(
 /**
  * @method GET
  * @access Public
- * @endpoints /api/get-department
+ * @endpoints /api/department/:name
  */
-router.get('/get-department', getDepartments);
+router.get('/department/:name', getDepartments);
 
 /**
  * @method GET
  * @access Public
- * @endpoints /api/get-department/:id
+ * @endpoints /api/departments?id=unique_id
  */
-router.get('/get-department/:id', getDepartment);
+router.get('/department', getDepartment);
 
 /**
  * @method PUT
  * @access Private
- * @endpoints /api/edit-department/:id
+ * @endpoints /api/departments/edit?id=unique_id
  */
-router.put('/edit-department/:id', isAuthenticated, editDepartment);
+router.put('/department/edit', isAuthenticated, editDepartment);
 
 /**
  * @method DELETE
  * @access Private
- * @endpoints /api/delete-department/:id
+ * @endpoints /api/departments/delete?id=unique_id
  */
-router.delete('/delete-department/:id', isAuthenticated, deleteDepartment);
+router.delete('/department/delete', isAuthenticated, deleteDepartment);
 
 export default router;

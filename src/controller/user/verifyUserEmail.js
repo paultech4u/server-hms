@@ -1,7 +1,7 @@
 import { User } from '../../model/user';
 import { Response, Request } from 'express';
 import { verifyAccessToken } from './service';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 
 /**
  *
@@ -21,7 +21,7 @@ async function verifyUserEmail(req, res, next) {
   const { token } = req.query;
 
   if (!token) {
-    ErrorExceptionMessage(404, 'access_token not found');
+    errorHandler(404, 'access_token not found');
   }
 
   let decodedToken;
@@ -30,7 +30,7 @@ async function verifyUserEmail(req, res, next) {
     // verify id token.
     decodedToken = verifyAccessToken(token);
     if (!decodedToken) {
-      ErrorExceptionMessage(401, 'Invalid token');
+      errorHandler(401, 'Invalid token');
     }
 
     const { _id } = decodedToken;
@@ -38,7 +38,7 @@ async function verifyUserEmail(req, res, next) {
 
     // throw error if no user
     if (!user) {
-      ErrorExceptionMessage(404, 'User not found');
+      errorHandler(404, 'User not found');
     }
 
     // verify the user

@@ -1,6 +1,6 @@
 import { Admin } from '../../model/admin';
 import { Patient } from '../../model/patient';
-import { ErrorExceptionMessage } from '../../util/error';
+import { errorHandler } from '../../util/errorHandler';
 
 /**
  * @typedef {{}} Request
@@ -44,14 +44,14 @@ async function registerPatient(req, res, next) {
 
     // is not an admin
     if (!isAdmin) {
-      ErrorExceptionMessage('401', 'Unauthorized');
+      errorHandler('401', 'Unauthorized');
     }
 
     const patient = await Patient.findById(patient_id);
 
     // patient exist
     if (patient) {
-      ErrorExceptionMessage('302', 'Patient is already registered');
+      errorHandler('302', 'Patient is already registered');
     }
 
     // create new patient
