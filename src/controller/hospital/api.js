@@ -37,8 +37,6 @@ router.post(
   createAdmin
 );
 
-// Hospital APIs
-
 const register_ratelimiter = rateLimitter({
   windowMs: 3 * 60 * 1000,
   max: 5,

@@ -1,6 +1,7 @@
 import { User } from '../../model/user';
 import { Admin } from '../../model/admin';
 import { Patient } from '../../model/patient';
+import { validationResult } from 'express-validator';
 import { errorHandler } from '../../util/errorHandler';
 
 /**
@@ -20,7 +21,6 @@ async function createPatient(req, res, next) {
     firstname,
     middlename,
     bloodGroup,
-    patientId,
     phoneNumber,
   } = req.body;
 
@@ -35,17 +35,28 @@ async function createPatient(req, res, next) {
   }
 
   try {
-    const { isAdmin } = await Admin.findById(authId);
+    const admin = await Admin.findById(authId);
     const { specialization } = await User.findById(authId);
 
-    const user = specialization !== 'Doctor' || specialization !== 'Nurse';
+    const isDoctor = specialization === 'Doctor';
+    const isNurse = specialization === 'Nurse';
 
-    // is not an admin
-    if (isAdmin !== true || user) {
+    // user not authorized
+    if (admin & (isDoctor === false) & (isNurse === false)) {
       errorHandler('401', 'unauthorized');
     }
 
-    const patient = await Patient.findById(patientId);
+    const patient = await Patient.findOne({ email: email });
+
+    const totalPatient = await Patient.estimatedDocumentCount(
+      {},
+      (err, count) => {
+        if (err) {
+          console.log(err);
+        }
+        return count;
+      }
+    );
 
     // patient exist
     if (patient) {
@@ -54,7 +65,7 @@ async function createPatient(req, res, next) {
 
     // create new patient
     const newPatient = new Patient({
-      _id: patientId,
+      _id: `PT_${totalPatient + 1}`,
       dob,
       email,
       gender,

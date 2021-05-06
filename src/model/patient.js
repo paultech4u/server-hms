@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 
 const PATIENTS = new Schema({
   _id: {
-    type: Number,
+    type: String,
     required: true,
   },
   firstname: {
@@ -25,7 +25,7 @@ const PATIENTS = new Schema({
   },
   dob: {
     type: Date,
-    required: true,
+    required: false,
   },
   imageUrl: {
     type: String,
@@ -37,7 +37,7 @@ const PATIENTS = new Schema({
     required: false,
   },
   email: {
-    type: Number,
+    type: String,
     required: false,
   },
   address: {
@@ -47,6 +47,7 @@ const PATIENTS = new Schema({
   status: {
     type: Boolean,
     default: false,
+    required: false,
   },
   bloodGroup: {
     type: String,

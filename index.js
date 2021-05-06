@@ -1,18 +1,21 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import bodyParser from 'body-parser';
 import { DatabaseConfig } from './src/database/config';
 
 import USER_ROUTE from './src/controller/user/api';
 import PATIENTS_ROUTE from './src/controller/patient/api';
-import HOSPITAL_ROUTE from './src/controller/admin/api';
+import HOSPITAL_ROUTE from './src/controller/hospital/api';
 
 const app = express();
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
+
+app.use(express.urlencoded({ extended: true }));
+
+app.use(express.json());
 
 app.use(cors());
 

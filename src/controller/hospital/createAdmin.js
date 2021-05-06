@@ -13,6 +13,7 @@ import { validationResult } from 'express-validator';
  */
 async function createAdmin(req, res, next) {
   const {
+    role,
     email,
     lastname,
     username,
@@ -34,25 +35,25 @@ async function createAdmin(req, res, next) {
     // check for an existing user
     const user = await User.findOne({ email: email });
     if (user) {
-      errorHandler(302, 'Email exists');
+      errorHandler(302, 'email exists');
     }
 
     const hospitals = await Hospital.findOne({ name: hospital_name });
 
     if (!hospitals) {
-      errorHandler(404, 'Hospital does not exists');
+      errorHandler(404, 'ospital does not exists');
     }
 
-    const encrpyt_pass = await bcrypt.hash(password, 10);
+    const encrpyted_pass = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       email,
-      firstname,
-      lastname,
       username,
-      password: encrpyt_pass,
-      phone_number,
+      lastname,
+      firstname,
       role: role,
+      phone_number,
+      password: encrpyted_pass,
     });
     newUser.save();
     const newAdmin = new Admin({

@@ -34,7 +34,7 @@ const USER = new Schema(
     },
     role: {
       type: String,
-      required: true,
+      required: false,
     },
     hospital: {
       type: Schema.Types.ObjectId,

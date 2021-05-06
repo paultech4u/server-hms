@@ -23,7 +23,7 @@ const router = express.Router();
  * @endpoints /api/register?user=[doctor, nurse, pharmacist]
  */
 router.post(
-  '/register',
+  '/create-user',
   [
     body('email')
       .not()

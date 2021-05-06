@@ -12,7 +12,7 @@ const router = express.Router();
  * @access Private
  * @endpoints /api/register?user=patient
  */
-router.post('/register', isAuthenticated, createPatient);
+router.post('/create-patient', isAuthenticated, createPatient);
 
 /**
  * @method DELETE
