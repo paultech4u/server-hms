@@ -1,6 +1,7 @@
 import { User } from '../../model/user';
 import { Admin } from '../../model/admin';
 import { Patient } from '../../model/patient';
+import { cookie, validationResult } from 'express-validator';
 import { errorHandler } from '../../util/errorHandler';
 
 /**
@@ -10,7 +11,7 @@ import { errorHandler } from '../../util/errorHandler';
  * @author  Paulsimon Edache
  */
 async function deletePatient(req, res, next) {
-  const patientId = req.body;
+  const { patientId } = req.body;
 
   const authId = req.userId;
 
@@ -24,17 +25,13 @@ async function deletePatient(req, res, next) {
 
   try {
     const admin = await Admin.findById(authId);
-    const user = await User.findById(authId);
+    const { specialization } = await User.findById(authId);
 
-    if (!admin || !user) {
-      errorHandler('401', 'unauthorized');
-    }
+    const isDoctor = specialization === 'Doctor';
+    const isNurse = specialization === 'Nurse';
 
-    const specialization =
-      user.specialization !== 'Doctor' || user.specialization !== 'Nurse';
-
-    // is not an admin
-    if (admin.isAdmin !== true || specialization) {
+    // user not authorized
+    if (admin & (isDoctor === false) & (isNurse === false)) {
       errorHandler('401', 'unauthorized');
     }
 

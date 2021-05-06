@@ -1,6 +1,7 @@
 import { User } from '../../model/user';
 import { Admin } from '../../model/admin';
 import { Patient } from '../../model/patient';
+import { validationResult } from 'express-validator';
 import { errorHandler } from '../../util/errorHandler';
 
 /**
@@ -16,6 +17,7 @@ async function editPatient(req, res, next) {
     gender,
     address,
     lastname,
+    patientId,
     firstname,
     middlename,
     bloodGroup,
@@ -34,20 +36,15 @@ async function editPatient(req, res, next) {
 
   try {
     const admin = await Admin.findById(authId);
-    const user = await User.findById(authId);
+    const { specialization } = await User.findById(authId);
 
-    if (!admin || !user) {
+    const isDoctor = specialization === 'Doctor';
+    const isNurse = specialization === 'Nurse';
+
+    // user not authorized
+    if (admin & (isDoctor === false) & (isNurse === false)) {
       errorHandler('401', 'unauthorized');
     }
-
-    const specialization =
-      user.specialization !== 'Doctor' || user.specialization !== 'Nurse';
-
-    // is not an admin
-    if (admin.isAdmin !== true || specialization) {
-      errorHandler('401', 'unauthorized');
-    }
-
     const patient = await Patient.findById(patientId);
 
     // patient does not exist

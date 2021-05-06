@@ -1,7 +1,7 @@
 import express from 'express';
 import createPatient from './createPatient';
 import deletePatient from './deletePatient';
-import editPatient from './createPatient';
+import editPatient from './editPatient';
 import isAuthenticated from '../../auth/authMiddleware';
 
 // Initialized the requests methods and routes.
