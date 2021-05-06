@@ -1,8 +1,6 @@
-import mongoose from "mongoose";
-import { USER_ROLE } from "../constants";
+import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
-const { ACCOUNTANT, DOCTOR, NURSE, PHARMACIST } = USER_ROLE;
 
 const USER = new Schema(
   {
@@ -10,11 +8,15 @@ const USER = new Schema(
       type: String,
       required: true,
     },
-    fullName: {
+    firstname: {
       type: String,
       required: true,
     },
-    userName: {
+    lastname: {
+      type: String,
+      required: true,
+    },
+    username: {
       type: String,
       required: false,
     },
@@ -22,8 +24,8 @@ const USER = new Schema(
       type: String || Number,
       required: true,
     },
-    phoneNumber: {
-      type: String,
+    phone_number: {
+      type: Number,
       required: true,
     },
     imageUrl: {
@@ -31,25 +33,29 @@ const USER = new Schema(
       required: false,
     },
     role: {
-      type: [ACCOUNTANT, DOCTOR, NURSE, PHARMACIST],
-      required: true,
+      type: String,
+      required: false,
     },
-    department: {
-      type: Schema.Types.String,
-      ref: "Department",
-      required: true,
+    hospital: {
+      type: Schema.Types.ObjectId,
+      ref: 'Hospitals',
+      required: false,
     },
-    status: {
-      type: Boolean,
-      default: false,
+    refToken: {
+      type: String,
+      required: false,
     },
     isVerified: {
       type: Boolean,
       required: false,
       default: false,
     },
+    specialization: {
+      type: String,
+      required: false,
+    },
   },
-  { timestamps: true, collection: "users" }
+  { timestamps: true }
 );
 
-export const User = mongoose.model("User", USER);
+export const User = mongoose.model('Users', USER);
