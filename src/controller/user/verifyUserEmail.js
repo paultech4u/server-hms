@@ -4,16 +4,10 @@ import { verifyAccessToken } from './service';
 import { errorHandler } from '../../util/errorHandler';
 
 /**
- *
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- */
-
-/**
- * @param  {Request} req object
- * @param  {Response} res object
- * @param  {NextFunction} next  middleware function
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
 async function verifyUserEmail(req, res, next) {
   // @TODO verify a new user account
@@ -46,12 +40,11 @@ async function verifyUserEmail(req, res, next) {
 
     // update the user
     const newUser = user.save();
-   
+
     res.status(200).json({
       message: 'Email verified',
       payload: newUser,
     });
-    
   } catch (error) {
     if (!error.status) {
       error.status = 500;

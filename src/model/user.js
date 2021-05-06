@@ -41,19 +41,9 @@ const USER = new Schema(
       ref: 'Hospitals',
       required: false,
     },
-    department: {
-      type: Schema.Types.ObjectId,
-      ref: 'Departments',
-      required: false,
-    },
     refToken: {
       type: String,
       required: false,
-    },
-    isAdmin: {
-      type: Boolean,
-      required: false,
-      default: false,
     },
     isVerified: {
       type: Boolean,

@@ -9,18 +9,10 @@ import {
 import { errorHandler } from '../../util/errorHandler';
 
 /**
- *
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- */
-
-/**
- *
- * @param  {Request} req
- * @param  {Response} res
- * @param  {NextFunction} next
- *
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
 async function loginUser(req, res, next) {
   const { email, password } = req.body;
@@ -28,10 +20,10 @@ async function loginUser(req, res, next) {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      errorHandler(404, `${email} does not exists`);
+      errorHandler(404, `user does not exists`);
     }
     if (user.isVerified === false) {
-      errorHandler(401, `${email} not verified`);
+      errorHandler(401, `user not verified`);
     }
 
     const isEqual = await bcrypt.compare(password, user.password);

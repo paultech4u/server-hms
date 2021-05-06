@@ -3,17 +3,10 @@ import { Response, Request } from 'express';
 import { errorHandler } from '../../util/errorHandler';
 
 /**
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- *
- */
-
-/**
- 
- * @param  {Request} req object
- * @param  {Response} res object
- * @param  {NextFunction} next function
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
 async function deactivateUser(req, res, next) {
   const { id } = req.params;

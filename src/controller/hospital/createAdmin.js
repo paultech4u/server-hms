@@ -6,17 +6,12 @@ import { errorHandler } from '../../util/errorHandler';
 import { validationResult } from 'express-validator';
 
 /**
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
-
-/**
- * @param  {Request} req object
- * @param  {Response} res   object
- * @param  {NextFunction} next function
- */
-async function addNewHospitalAdmin(req, res, next) {
+async function createAdmin(req, res, next) {
   const {
     email,
     lastname,
@@ -27,8 +22,6 @@ async function addNewHospitalAdmin(req, res, next) {
     hospital_name,
   } = req.body;
 
-  const { role } = req.query;
-
   // Performs checks for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -38,10 +31,6 @@ async function addNewHospitalAdmin(req, res, next) {
   }
 
   try {
-    let new_user = null;
-    let new_admin = null;
-    let admin_role_types = ['Admin', 'ADMIN', 'admin'];
-
     // check for an existing user
     const user = await User.findOne({ email: email });
     if (user) {
@@ -56,11 +45,7 @@ async function addNewHospitalAdmin(req, res, next) {
 
     const encrpyt_pass = await bcrypt.hash(password, 10);
 
-    // preform checks for valid admin role type
-    if (role !== admin_role_types.find((values) => values === role)) {
-      errorHandler(400, 'Role provided cannot be an admin');
-    }
-    new_user = new User({
+    const newUser = new User({
       email,
       firstname,
       lastname,
@@ -68,15 +53,15 @@ async function addNewHospitalAdmin(req, res, next) {
       password: encrpyt_pass,
       phone_number,
       role: role,
+    });
+    newUser.save();
+    const newAdmin = new Admin({
+      _id: newUser._id,
+      hospital: hospitals._id,
       isAdmin: true,
     });
-    new_user.save();
-    new_admin = new Admin({
-      _id: new_user._id,
-      hospital: hospitals._id,
-    });
-    new_admin.save();
-    hospitals.admin = new_admin._id;
+    newAdmin.save();
+    hospitals.admin = newAdmin._id;
     hospitals.save();
     return res.status(202).json({
       message: 'Accepted',
@@ -90,4 +75,4 @@ async function addNewHospitalAdmin(req, res, next) {
   }
 }
 
-export default addNewHospitalAdmin;
+export default createAdmin;

@@ -8,16 +8,10 @@ import {
 import { errorHandler } from '../../util/errorHandler';
 
 /**
- *
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- */
-
-/**
- * @param  {Request} req object
- * @param  {Response} res object
- * @param  {NextFunction} next  middleware function
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
 async function refreshToken(req, res, next) {
   // user uuid
@@ -25,14 +19,14 @@ async function refreshToken(req, res, next) {
 
   try {
     if (!userId) {
-      errorHandler(401, 'uuid unavailable');
+      errorHandler(401, 'no id found');
     }
 
     const user = await User.findById(userId);
 
     // check if user has refresh token
     if (!user.refToken) {
-      errorHandler(404, 'No token present');
+      errorHandler(404, 'no token found');
     }
 
     let new_reftoken = null;

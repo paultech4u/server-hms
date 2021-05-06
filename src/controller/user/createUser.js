@@ -1,28 +1,21 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../../model/user';
+import { Admin } from "../../model/admin"
 import { Hospital } from '../../model/hospital';
 import { errorHandler } from '../../util/errorHandler';
-import { Department } from '../../model/department';
 import { validationResult } from 'express-validator';
 import { comfirmationMSG } from '../../service/sendgrid';
 
 const { JWT_SECRET_KEY } = process.env;
 
 /**
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- *
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
-
-/**
- 
- * @param  {Request} req object
- * @param  {Response} res object
- * @param  {NextFunction} next function
- */
-async function addNewUser(req, res, next) {
+async function createUser(req, res, next) {
   // request body
   const {
     role,
@@ -33,7 +26,7 @@ async function addNewUser(req, res, next) {
     firstname,
     phone_number,
     hospital_name,
-    department_name,
+    specialization,
   } = req.body;
 
   const { userId } = req;
@@ -48,8 +41,8 @@ async function addNewUser(req, res, next) {
 
   try {
     // @TODO check if user making this request is an admin
-    const isUserAdmin = await User.findById(userId);
-    if (isUserAdmin.isAdmin === false) {
+    const { isAdmin } = await Admin.findById(userId);
+    if (isAdmin === false) {
       errorHandler(404, 'Unauthorised access');
     }
 
@@ -65,25 +58,19 @@ async function addNewUser(req, res, next) {
       errorHandler(404, 'Hospital does not exists');
     }
 
-    // Query for an existing department
-    const departments = await Department.findOne({ name: department_name });
-    if (!departments) {
-      errorHandler(404, 'Departments does not exists');
-    }
-
     // Encrpyt user password
     const encrpyted_password = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       email,
-      firstname,
       lastname,
       username,
-      password: encrpyted_password,
-      phone_number,
+      firstname,
       role: role,
+      phone_number,
+      specialization,
       hospital: hospital._id,
-      department: departments._id,
+      password: encrpyted_password,
     });
     await newUser.save();
     const accessToken = jwt.sign(
@@ -106,4 +93,4 @@ async function addNewUser(req, res, next) {
   }
 }
 
-export default addNewUser;
+export default createUser;

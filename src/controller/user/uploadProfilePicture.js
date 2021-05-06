@@ -3,17 +3,10 @@ import { User } from '../../model/user';
 import { SaveToCloudinary } from '../../service/cloudinary';
 
 /**
- *
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- */
-
-/**
- *
- * @param {Request} req object
- * @param {Response} res object
- * @param {NextFunction} next middleware function
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
 
 export async function uploadProfilePicture(req, res, next) {

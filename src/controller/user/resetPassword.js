@@ -3,6 +3,13 @@ import { User } from '../../model/user';
 import { errorHandler } from '../../util/errorHandler';
 import { validationResult } from 'express-validator';
 
+
+/**
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
+ */
 async function resetUserPassword(req, res, next) {
   const { userId } = req;
   const { newPassword } = req.body;

@@ -10,23 +10,16 @@ import { errorHandler } from '../../util/errorHandler';
 import { validationResult } from 'express-validator';
 
 /**
- *
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- */
-
-/**
- * @param  {object} req   object
- * @param  {object} res   object
- * @param  {NextFunction} next middleware function
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
  * @author  Paulsimon Edache
  */
 async function forgetPassword(req, res, next) {
   const { password1, password2, email } = req.body;
   const errors = validationResult(req);
 
-   // handle express validation error
+  // handle express validation error
   if (!errors.isEmpty()) {
     res.status(406).json({
       error: errors.mapped(),
@@ -37,32 +30,26 @@ async function forgetPassword(req, res, next) {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      errorHandler(404, `${email} not found`);
+      errorHandler(404, `user not found`);
     }
 
     if (email !== user.email) {
-      errorHandler(
-        404,
-        `${email} is not a registered on this application `
-      );
+      errorHandler(404, `user not registered`);
     }
 
     // check if user is verified
     if (user.isVerified === false) {
-      errorHandler(404, `${email} your email is not verified`);
+      errorHandler(404, `user not verified`);
     }
 
     // compare password
     if (password1 !== password2) {
-      errorHandler(406, 'password not match');
+      errorHandler(406, 'password did not match');
     }
 
     const isMatch = await bcrypt.compare(password1, user.password);
     if (isMatch) {
-      errorHandler(
-        406,
-        'new password must not be the same with the old password'
-      );
+      errorHandler(406, 'can not use previous password');
     }
 
     const payload = {

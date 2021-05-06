@@ -4,17 +4,10 @@ import { errorHandler } from '../util/errorHandler';
 const { JWT_SECRET_KEY } = process.env;
 
 /**
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- *
- */
-
-/**
- 
- * @param  {Request} req object
- * @param  {Response} res object
- * @param  {NextFunction} next function
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
 // check if user is authenticate
 function isAuthenticated(req, res, next) {

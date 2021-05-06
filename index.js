@@ -5,16 +5,14 @@ import bodyParser from 'body-parser';
 import { DatabaseConfig } from './src/database/config';
 
 import USER_ROUTE from './src/controller/user/api';
-import PATIENTS_ROUTE from './src/controller/patient/api'
-import HOSPITAL_ROUTE from './src/controller/hospital/api';
+import PATIENTS_ROUTE from './src/controller/patient/api';
+import HOSPITAL_ROUTE from './src/controller/admin/api';
 
 const app = express();
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
-
-app.use(bodyParser.json());
 
 app.use(cors());
 

@@ -1,14 +1,8 @@
 import express from 'express';
-import getDepartment from './getDapartment';
-import addNewHospital from './addNewHospital';
+import createAdmin from './createAdmin';
+import createHospital from './createHospital';
 import rateLimitter from 'express-rate-limit';
-import editDepartment from './editDepartment';
-import getDepartments from './getDepartments';
 import { body, check } from 'express-validator';
-import deleteDepartment from './deleteDepartment';
-import createDepartment from './createDepartment';
-import addNewHospitalAdmin from './addNewHospitalAdmin';
-import isAuthenticated from '../../auth/authMiddleware';
 
 // Initialized the requests methods and routes.
 const router = express.Router();
@@ -16,10 +10,10 @@ const router = express.Router();
 /**
  * @method POST
  * @access Private
- * @endpoints /api/admin/register?role=admin
+ * @endpoints /api/register/admin
  */
 router.post(
-  '/admin/register',
+  '/register/admin',
   [
     body('email')
       .not()
@@ -40,7 +34,7 @@ router.post(
       .withMessage('must contain a character'),
     body(['username']).trim(),
   ],
-  addNewHospitalAdmin
+  createAdmin
 );
 
 // Hospital APIs
@@ -64,51 +58,7 @@ router.post(
     body(['name', 'state', 'address']).trim(),
   ],
   register_ratelimiter,
-  addNewHospital
+  createHospital
 );
-
-// Department APIs
-
-/**
- * @method POST
- * @access Private
- * @endpoints /api/department/create
- */
-router.post(
-  '/department/create',
-  [
-    body('name').not().isEmpty().trim(),
-    body('description').not().isEmpty().trim(),
-  ],
-  createDepartment
-);
-
-/**
- * @method GET
- * @access Public
- * @endpoints /api/department/:name
- */
-router.get('/department/:name', getDepartments);
-
-/**
- * @method GET
- * @access Public
- * @endpoints /api/departments?id=unique_id
- */
-router.get('/department', getDepartment);
-
-/**
- * @method PUT
- * @access Private
- * @endpoints /api/departments/edit?id=unique_id
- */
-router.put('/department/edit', isAuthenticated, editDepartment);
-
-/**
- * @method DELETE
- * @access Private
- * @endpoints /api/departments/delete?id=unique_id
- */
-router.delete('/department/delete', isAuthenticated, deleteDepartment);
 
 export default router;

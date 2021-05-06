@@ -1,22 +1,15 @@
+import { User } from '../../model/user';
 import { Admin } from '../../model/admin';
 import { Patient } from '../../model/patient';
 import { errorHandler } from '../../util/errorHandler';
 
 /**
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- *
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
-
-/**
- 
- * @param  {Request} req object
- * @param  {Response} res object
- * @param  {NextFunction} next middleware function
- */
-async function registerPatient(req, res, next) {
-  const admin_id = req.userId;
+async function createPatient(req, res, next) {
   const {
     dob,
     email,
@@ -27,9 +20,11 @@ async function registerPatient(req, res, next) {
     firstname,
     middlename,
     bloodGroup,
-    patient_id,
+    patientId,
     phoneNumber,
   } = req.body;
+
+  const authId = req.userId;
 
   /** handle express validation error */
   const errors = validationResult(req);
@@ -40,23 +35,26 @@ async function registerPatient(req, res, next) {
   }
 
   try {
-    const isAdmin = await Admin.findById(admin_id);
+    const { isAdmin } = await Admin.findById(authId);
+    const { specialization } = await User.findById(authId);
+
+    const user = specialization !== 'Doctor' || specialization !== 'Nurse';
 
     // is not an admin
-    if (!isAdmin) {
-      errorHandler('401', 'Unauthorized');
+    if (isAdmin !== true || user) {
+      errorHandler('401', 'unauthorized');
     }
 
-    const patient = await Patient.findById(patient_id);
+    const patient = await Patient.findById(patientId);
 
     // patient exist
     if (patient) {
-      errorHandler('302', 'Patient is already registered');
+      errorHandler('302', 'patient exits');
     }
 
     // create new patient
     const newPatient = new Patient({
-      _id: patient_id,
+      _id: patientId,
       dob,
       email,
       gender,
@@ -73,7 +71,7 @@ async function registerPatient(req, res, next) {
     await newPatient.save();
 
     return res.status(200).json({
-      message: 'Patient addedd successfully',
+      message: 'patient is successfully created',
     });
   } catch (error) {
     if (!error.status) {
@@ -83,4 +81,4 @@ async function registerPatient(req, res, next) {
   }
 }
 
-export default registerPatient;
+export default createPatient;

@@ -1,7 +1,7 @@
 import express from 'express';
 import loginUser from './loginUser';
 import deleteUser from './deleteUser';
-import addNewUser from './addNewUser';
+import createUser from './createUser';
 import activateUser from './activateUser';
 import refreshToken from './refreshToken';
 import deactivateUser from './deactivateUser';
@@ -20,10 +20,10 @@ const router = express.Router();
 /**
  * @method POST
  * @access Public
- * @endpoints /api/add-user
+ * @endpoints /api/register?user=[doctor, nurse, pharmacist]
  */
 router.post(
-  '/add-user',
+  '/register',
   [
     body('email')
       .not()
@@ -45,7 +45,7 @@ router.post(
     body(['username', 'department_name', 'hospital_name']).trim(),
   ],
   isAuthenticated,
-  addNewUser
+  createUser
 );
 
 /**

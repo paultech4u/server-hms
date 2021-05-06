@@ -3,17 +3,12 @@ import { errorHandler } from '../../util/errorHandler';
 import { validationResult } from 'express-validator';
 
 /**
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
+ * @param  {import("express").Response} req   object
+ * @param  {import("express").Request} res   object
+ * @param  {import("express").NextFunction} next middleware function
+ * @author  Paulsimon Edache
  */
-
-/**
- * @param  {Request} req object
- * @param  {Response} res object
- * @param  {NextFunction} next middleware fucntion
- */
-async function addNewHospital(req, res, next) {
+async function createHospital(req, res, next) {
   const { name, email, state, address, zip_no } = req.body;
 
   // handle express validation error
@@ -51,4 +46,4 @@ async function addNewHospital(req, res, next) {
   }
 }
 
-export default addNewHospital;
+export default createHospital;

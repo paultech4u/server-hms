@@ -9,6 +9,10 @@ const ADMIN_SCHEMA = new Schema(
       ref: 'Users',
       required: true,
     },
+    isAdmin: {
+      type: Schema.Types.Boolean,
+      required: true,
+    },
     hospital: {
       type: Schema.Types.ObjectId,
       required: false,
