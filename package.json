@@ -8,6 +8,7 @@
     "url": "https://github.com/paultech4u/HMS-Backend"
   },
   "homepage": "https://github.com/paultech4u/HMS-Backend",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "start": "node index.js",
