@@ -1,11 +1,11 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import DatabaseConfig from './src/database/config';
+import DatabaseConfig from './app/database/config';
 
-import USER_ROUTE from './src/controller/user/api';
-import PATIENTS_ROUTE from './src/controller/patient/api';
-import HOSPITAL_ROUTE from './src/controller/hospital/api';
+import USER_ROUTE from './app/controller/user/api';
+import PATIENTS_ROUTE from './app/controller/patient/api';
+import HOSPITAL_ROUTE from './app/controller/hospital/api';
 
 const app = express();
 
