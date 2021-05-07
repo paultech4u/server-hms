@@ -1,20 +1,6 @@
 import { User } from '../../model/user.js';
-import { Response, Request } from 'express';
 import { errorHandler } from '../../util/errorHandler.js';
 
-/**
- * @typedef {{}} Request
- * @typedef {{}} Response
- * @typedef {{}} NextFunction
- * 
- */
-
-/**
- 
- * @param  {Request} req object
- * @param  {Response} res object
- * @param  {NextFunction} next middleware function
- */
 async function activateUser(req, res, next) {
   const { id } = req.params;
   try {
