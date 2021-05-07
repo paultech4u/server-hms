@@ -2,9 +2,10 @@ import dotenv from 'dotenv';
 // import logger from 'loglevel';
 import mongoose from 'mongoose';
 
-dotenv.config({ path: './.env' });
+dotenv.config();
 
 const { DB_HOST } = process.env;
+
 
 const DatabaseConfig = mongoose
   .connect(DB_HOST, {
