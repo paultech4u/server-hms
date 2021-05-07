@@ -1,7 +1,7 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import { DatabaseConfig } from './src/database/config';
+import DatabaseConfig from './src/database/config';
 
 import USER_ROUTE from './src/controller/user/api';
 import PATIENTS_ROUTE from './src/controller/patient/api';

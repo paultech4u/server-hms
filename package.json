@@ -21,7 +21,6 @@
     "js",
     "HMS"
   ],
-  "type": "module",
   "author": "Paulsimon Edache",
   "license": "ISC",
   "dependencies": {
