@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { errorHandler } from '../util/errorHandler';
+import { errorHandler } from '../util/errorHandler.js';
 
 const { JWT_SECRET_KEY } = process.env;
 
