@@ -1,6 +1,6 @@
-import { User } from '../../model/user';
+import { User } from '../../model/user.js';
 import { Response, Request } from 'express';
-import { errorHandler } from '../../util/errorHandler';
+import { errorHandler } from '../../util/errorHandler.js';
 
 /**
  * @typedef {{}} Request

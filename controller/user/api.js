@@ -1,18 +1,18 @@
 import express from 'express';
-import loginUser from './loginUser';
-import deleteUser from './deleteUser';
-import createUser from './createUser';
-import activateUser from './activateUser';
-import refreshToken from './refreshToken';
-import deactivateUser from './deactivateUser';
-import forgetPassword from './forgetPassword';
-import { uploads } from '../../service/multer';
-import resetUserPassword from './resetPassword';
+import loginUser from './loginUser.js';
+import deleteUser from './deleteUser.js';
+import createUser from './createUser.js';
+import activateUser from './activateUser.js';
+import refreshToken from './refreshToken.js';
+import deactivateUser from './deactivateUser.js';
+import forgetPassword from './forgetPassword.js';
+import { uploads } from '../../service/multer.js';
+import resetUserPassword from './resetPassword.js';
 import { body, check } from 'express-validator';
-import verifyUserEmail from './verifyUserEmail';
-import getUserProfileDetails from './getProfileDetails';
-import isAuthenticated from '../../auth/authMiddleware';
-import { uploadProfilePicture } from './uploadProfilePicture';
+import verifyUserEmail from './verifyUserEmail.js';
+import getUserProfileDetails from './getProfileDetails.js';
+import isAuthenticated from '../../auth/authMiddleware.js';
+import { uploadProfilePicture } from './uploadProfilePicture.js';
 
 // Initialize the request methods and routes.
 const router = express.Router();
