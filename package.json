@@ -10,8 +10,8 @@
   "homepage": "https://github.com/paultech4u/HMS-Backend",
   "scripts": {
     "test": "jest",
-    "start": "node index.mjs",
-    "start:dev": "nodemon --exec babel-node index.js"
+    "start": "node /app/index.js",
+    "start:dev": "nodemon --exec babel-node /app/index.js"
   },
   "engines": {
     "node": "14.x"
