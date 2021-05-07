@@ -1,4 +1,4 @@
-module.exports = {
-  extends: "airbnb-base",
-  plugins: ["import"],
+export default {
+  extends: 'airbnb-base',
+  plugins: ['import'],
 };
