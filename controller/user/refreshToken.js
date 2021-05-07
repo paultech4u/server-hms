@@ -4,7 +4,7 @@ import {
   signRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
-} from './service';
+} from './service.js';
 import { errorHandler } from '../../util/errorHandler.js';
 
 /**
