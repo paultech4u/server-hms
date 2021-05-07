@@ -1,7 +1,7 @@
 {
-  "name": "node-restapi",
+  "name": "HMS",
   "version": "1.0.0",
-  "description": "Creating a Restful API",
+  "description": "HMS REST API",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -11,6 +11,9 @@
   "scripts": {
     "test": "jest",
     "start": "nodemon --exec babel-node index.js"
+  },
+  "engines": {
+    "node": "14.x"
   },
   "keywords": [
     "node",
