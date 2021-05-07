@@ -1,8 +1,8 @@
 import express from 'express';
-import createPatient from './createPatient';
-import deletePatient from './deletePatient';
-import editPatient from './editPatient';
-import isAuthenticated from '../../auth/authMiddleware';
+import createPatient from './createPatient.js';
+import deletePatient from './deletePatient.js';
+import editPatient from './editPatient.js';
+import isAuthenticated from '../../auth/authMiddleware.js';
 
 // Initialized the requests methods and routes.
 const router = express.Router();

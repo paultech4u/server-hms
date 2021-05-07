@@ -1,12 +1,11 @@
 import bcrypt from 'bcrypt';
-import { User } from '../../model/user';
-import { Response, Request } from 'express';
+import { User } from '../../model/user.js';
 import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
-} from './service';
-import { errorHandler } from '../../util/errorHandler';
+} from './service.js';
+import { errorHandler } from '../../util/errorHandler.js';
 import { validationResult } from 'express-validator';
 
 /**

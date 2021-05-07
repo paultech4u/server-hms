@@ -1,8 +1,8 @@
-import { User } from '../../model/user';
-import { Admin } from '../../model/admin';
-import { Patient } from '../../model/patient';
-import { cookie, validationResult } from 'express-validator';
-import { errorHandler } from '../../util/errorHandler';
+import { User } from '../../model/user.js';
+import { Admin } from '../../model/admin.js';
+import { Patient } from '../../model/patient.js';
+import { validationResult } from 'express-validator';
+import { errorHandler } from '../../util/errorHandler.js';
 
 /**
  * @param  {import("express").Response} req   object

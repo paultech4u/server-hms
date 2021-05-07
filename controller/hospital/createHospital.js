@@ -1,5 +1,5 @@
-import { Hospital } from '../../model/hospital';
-import { errorHandler } from '../../util/errorHandler';
+import { Hospital } from '../../model/hospital.js';
+import { errorHandler } from '../../util/errorHandler.js';
 import { validationResult } from 'express-validator';
 
 /**

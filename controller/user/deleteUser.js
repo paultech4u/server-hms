@@ -1,7 +1,7 @@
-import { User } from '../../model/user';
-import { Admin } from '../../model/admin';
-import { Hospital } from '../../model/hospital';
-import { errorHandler } from '../../util/errorHandler';
+import { User } from '../../model/user.js';
+import { Admin } from '../../model/admin.js';
+import { Hospital } from '../../model/hospital.js';
+import { errorHandler } from '../../util/errorHandler.js';
 
 /**
  * @param  {import("express").Response} req   object

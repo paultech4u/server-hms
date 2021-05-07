@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
-import { User } from '../../model/user';
-import { errorHandler } from '../../util/errorHandler';
+import { User } from '../../model/user.js';
+import { errorHandler } from '../../util/errorHandler.js';
 import { validationResult } from 'express-validator';
 
 

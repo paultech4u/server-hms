@@ -1,6 +1,5 @@
-import { User } from '../../model/user';
-import { Response, Request } from 'express';
-import { errorHandler } from '../../util/errorHandler';
+import { User } from '../../model/user.js';
+import { errorHandler } from '../../util/errorHandler.js';
 
 /**
  * @param  {import("express").Response} req   object

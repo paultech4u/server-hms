@@ -1,11 +1,11 @@
-import { User } from '../../model/user';
+import { User } from '../../model/user.js';
 import {
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
 } from './service';
-import { errorHandler } from '../../util/errorHandler';
+import { errorHandler } from '../../util/errorHandler.js';
 
 /**
  * @param  {import("express").Response} req   object

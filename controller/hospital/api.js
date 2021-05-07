@@ -1,8 +1,8 @@
 import express from 'express';
-import createAdmin from './createAdmin';
-import createHospital from './createHospital';
+import createAdmin from './createAdmin.js';
+import createHospital from './createHospital.js';
 import rateLimitter from 'express-rate-limit';
-import { body, check } from 'express-validator';
+import { body, check } from 'express-validator.js';
 
 // Initialized the requests methods and routes.
 const router = express.Router();

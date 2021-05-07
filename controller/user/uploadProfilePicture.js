@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { User } from '../../model/user';
-import { SaveToCloudinary } from '../../service/cloudinary';
+import { User } from '../../model/user.js';
+import { SaveToCloudinary } from '../../service/cloudinary.js';
 
 /**
  * @param  {import("express").Response} req   object
