@@ -11,8 +11,8 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "node ./app/index.js",
-    "start:dev": "nodemon --exec babel-node ./app/index.js"
+    "start": "node index.js",
+    "start:dev": "nodemon --exec babel-node index.js"
   },
   "engines": {
     "node": "14.x"
