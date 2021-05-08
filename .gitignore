@@ -3,6 +3,7 @@
 
 # mice
 .env
+.env.production
 
 # lockfiles
 yarn.lock
