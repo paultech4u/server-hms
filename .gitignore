@@ -1,9 +1,12 @@
+#dependencies
 /node_modules
+
+# mice
 .env
 
 # lockfiles
 yarn.lock
 yarn-error.log*
 
-# coverage
+# testing
 /coverage
