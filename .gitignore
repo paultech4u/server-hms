@@ -2,7 +2,7 @@
 /node_modules
 
 # mice
-.env
+.env.local
 
 # lockfiles
 yarn.lock
