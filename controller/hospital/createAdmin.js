@@ -23,7 +23,7 @@ async function createAdmin(req, res, next) {
     hospital_name,
   } = req.body;
 
-  // Performs checks for validation errors
+  // performs checks for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(406).json({
@@ -34,6 +34,7 @@ async function createAdmin(req, res, next) {
   try {
     // check for an existing user
     const user = await User.findOne({ email: email });
+
     if (user) {
       errorHandler(302, 'email exists');
     }
@@ -55,15 +56,22 @@ async function createAdmin(req, res, next) {
       phone_number,
       password: encrpyted_pass,
     });
+
     newUser.save();
+
     const newAdmin = new Admin({
       _id: newUser._id,
       hospital: hospitals._id,
       isAdmin: true,
     });
+
     newAdmin.save();
+
+    // set the new admin
     hospitals.admin = newAdmin._id;
+
     hospitals.save();
+
     return res.status(202).json({
       message: 'Accepted',
     });

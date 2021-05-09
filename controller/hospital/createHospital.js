@@ -21,6 +21,7 @@ async function createHospital(req, res, next) {
   try {
     const hospital = await Hospital.findOne({ name: name });
 
+    // hospital exist
     if (hospital) {
       errorHandler(404, 'Hospital  exist');
     }
