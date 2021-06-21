@@ -42,7 +42,7 @@ async function createAdmin(req, res, next) {
     const hospitals = await Hospital.findOne({ name: hospital_name });
 
     if (!hospitals) {
-      errorHandler(404, 'ospital does not exists');
+      errorHandler(404, 'hospital does not exists');
     }
 
     const encrpyted_pass = await bcrypt.hash(password, 10);

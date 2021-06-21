@@ -15,6 +15,8 @@ import { validationResult } from 'express-validator';
  * @author  Paulsimon Edache
  */
 async function forgetPassword(req, res, next) {
+  // password1=new password
+  // password2=confirm password
   const { password1, password2, email } = req.body;
   const errors = validationResult(req);
 
@@ -29,12 +31,13 @@ async function forgetPassword(req, res, next) {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      errorHandler(404, `user not found`);
+      errorHandler(404, 'email provided is not a registered email account');
     }
 
-    if (email !== user.email) {
-      errorHandler(404, `user not registered`);
-    }
+    // // user email is not registered
+    // if (email !== user.email) {
+    //   errorHandler(404, `user not registered`);
+    // }
 
     // check if user is verified
     if (user.isVerified === false) {

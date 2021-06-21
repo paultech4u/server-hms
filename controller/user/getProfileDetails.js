@@ -20,12 +20,12 @@ async function getUserProfileDetails(req, res, next) {
         'isAdmin ',
         'firstname',
         'lastname',
-        'isActive',
         'username',
+        'isVerified',
         'phone_number',
+        'specialization',
       ])
       .populate('hospital', 'name -_id')
-      .populate('department', 'name -_id')
       .exec();
 
     if (!user) {
