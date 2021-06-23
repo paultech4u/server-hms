@@ -24,6 +24,7 @@ async function createPatient(req, res, next) {
     phoneNumber,
   } = req.body;
 
+  // auth id of the authorized user
   const authId = req.userId;
 
   /** handle express validation error */
@@ -38,10 +39,11 @@ async function createPatient(req, res, next) {
     const admin = await Admin.findById(authId);
     const { specialization } = await User.findById(authId);
 
+    // users authorized to create a new patients
     const isDoctor = specialization === 'Doctor';
     const isNurse = specialization === 'Nurse';
 
-    // user not authorized
+    // users not authorized 
     if (admin & (isDoctor === false) & (isNurse === false)) {
       errorHandler('401', 'unauthorized');
     }

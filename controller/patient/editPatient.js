@@ -35,9 +35,11 @@ async function editPatient(req, res, next) {
   }
 
   try {
+    // queries
     const admin = await Admin.findById(authId);
     const { specialization } = await User.findById(authId);
 
+    // users authorized to edit patients records
     const isDoctor = specialization === 'Doctor';
     const isNurse = specialization === 'Nurse';
 
@@ -45,6 +47,8 @@ async function editPatient(req, res, next) {
     if (admin & (isDoctor === false) & (isNurse === false)) {
       errorHandler('401', 'unauthorized');
     }
+    
+    // queries
     const patient = await Patient.findById(patientId);
 
     // patient does not exist
@@ -52,7 +56,7 @@ async function editPatient(req, res, next) {
       errorHandler('302', 'patient does not exit');
     }
 
-    // update exiting patient
+    // update patient records
     patient.dob = dob;
     patient.email = email;
     patient.gender = gender;
